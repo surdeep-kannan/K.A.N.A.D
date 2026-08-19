@@ -1,0 +1,613 @@
+{
+  "generated_at": "2026-08-16T22:31:27+05:30",
+  "sources": {
+    "_root_untracked": {
+      "count": 105,
+      "years_covered": [],
+      "status": "unknown",
+      "status_note": "Loose PDFs directly under pdf_raw/, not sorted into a source subdirectory. No provenance manifest exists for these."
+    },
+    "aggregator_grportal": {
+      "count": 0,
+      "years_covered": [],
+      "status": "unknown"
+    },
+    "aggregator_gujaratgr": {
+      "count": 0,
+      "years_covered": [],
+      "status": "unknown"
+    },
+    "agri_cooperation": {
+      "count": 0,
+      "years_covered": [],
+      "status": "blocked",
+      "status_note": "GR/document listing at https://agri.gujarat.gov.in/GR is rendered client-side via JS/AJAX -- plain HTTP requests see an empty page shell. Using a real browser (Playwright) to execute that JS instead triggers the site's WAF, which detects headless-browser fingerprints and returns either a math CAPTCHA (\"Security check... enter the above result\") or a hard block (\"Web Page Blocked, Attack ID: 20000021\"). Plain requests are NOT blocked on these same domains -- confirmed by re-testing immediately after. Getting past this requires either solving a CAPTCHA or evading headless-browser detection, both of which are circumventing a deliberate anti-bot control and were not attempted.",
+      "last_fetch_method": "plain requests (empty JS shell) + Playwright (WAF/CAPTCHA-blocked); no working method found",
+      "status_updated_at": "2026-08-16T22:16:44+05:30",
+      "external_link": {
+        "display_name": "Agriculture, Farmers Welfare and Cooperation Department",
+        "jurisdiction": "Gujarat State",
+        "homepage_url": "https://agri.gujarat.gov.in/",
+        "listing_url": "https://agri.gujarat.gov.in/GR",
+        "access_note": "GR page itself serves a CAPTCHA challenge to automated browsers. Link out to the live source instead of a local mirror."
+      }
+    },
+    "central_sample": {
+      "count": 1,
+      "years_covered": [],
+      "status": "unknown"
+    },
+    "climate_change": {
+      "count": 10,
+      "years_covered": [],
+      "status": "unknown"
+    },
+    "education": {
+      "count": 0,
+      "years_covered": [],
+      "status": "blocked",
+      "status_note": "GR/document listing at https://education.gujarat.gov.in/Main/GovernmentResolution is rendered client-side via JS/AJAX -- plain HTTP requests see an empty page shell. Using a real browser (Playwright) to execute that JS instead triggers the site's WAF, which detects headless-browser fingerprints and returns either a math CAPTCHA (\"Security check... enter the above result\") or a hard block (\"Web Page Blocked, Attack ID: 20000021\"). Plain requests are NOT blocked on these same domains -- confirmed by re-testing immediately after. Getting past this requires either solving a CAPTCHA or evading headless-browser detection, both of which are circumventing a deliberate anti-bot control and were not attempted.",
+      "last_fetch_method": "plain requests (empty JS shell) + Playwright (WAF/CAPTCHA-blocked); no working method found",
+      "status_updated_at": "2026-08-16T22:16:44+05:30",
+      "external_link": {
+        "display_name": "Education Department",
+        "jurisdiction": "Gujarat State",
+        "homepage_url": "https://education.gujarat.gov.in/Index",
+        "listing_url": "https://education.gujarat.gov.in/Main/GovernmentResolution",
+        "access_note": "JS-rendered listing, WAF-protected against automated browsers. Link out to the live source instead of a local mirror."
+      }
+    },
+    "egazette_central": {
+      "count": 191,
+      "years_covered": [
+        2026
+      ],
+      "status": "partial",
+      "status_note": "Only the 2026 WriteReadData folder has been swept (IDs 275301-275491). Years 1958-2025 and any IDs outside this range are untried. Site has no crawled listing/index yet, so this is an ID-range sweep, not a full crawl.",
+      "last_fetch_method": "id_range_sweep 275301-275491 (2026 folder only)",
+      "status_updated_at": "2026-08-16T20:09:14+05:30"
+    },
+    "egazette_state": {
+      "count": 19,
+      "years_covered": [],
+      "status": "unknown"
+    },
+    "energy_petro": {
+      "count": 0,
+      "years_covered": [],
+      "status": "unknown"
+    },
+    "finance_alt": {
+      "count": 1,
+      "years_covered": [],
+      "status": "unknown"
+    },
+    "finance_department": {
+      "count": 0,
+      "years_covered": [],
+      "status": "blocked",
+      "status_note": "GR/document listing at https://financedepartment.gujarat.gov.in/ is rendered client-side via JS/AJAX -- plain HTTP requests see an empty page shell. Using a real browser (Playwright) to execute that JS instead triggers the site's WAF, which detects headless-browser fingerprints and returns either a math CAPTCHA (\"Security check... enter the above result\") or a hard block (\"Web Page Blocked, Attack ID: 20000021\"). Plain requests are NOT blocked on these same domains -- confirmed by re-testing immediately after. Getting past this requires either solving a CAPTCHA or evading headless-browser detection, both of which are circumventing a deliberate anti-bot control and were not attempted.",
+      "last_fetch_method": "plain requests (empty JS shell) + Playwright (WAF/CAPTCHA-blocked); no working method found",
+      "status_updated_at": "2026-08-16T22:16:44+05:30",
+      "external_link": {
+        "display_name": "Finance Department",
+        "jurisdiction": "Gujarat State",
+        "homepage_url": "https://financedepartment.gujarat.gov.in/",
+        "listing_url": "https://financedepartment.gujarat.gov.in/",
+        "access_note": "JS-rendered listing, WAF-protected against automated browsers. Link out to the live source instead of a local mirror."
+      }
+    },
+    "food_civil_supplies": {
+      "count": 1,
+      "years_covered": [],
+      "status": "unknown"
+    },
+    "forest_environment": {
+      "count": 15,
+      "years_covered": [],
+      "status": "partial",
+      "status_note": "Pagination controls were detected on this page after all -- re-check crawl logic.",
+      "last_fetch_method": "single-page listing scrape of https://fed.gujarat.gov.in/government-resolutions.htm",
+      "status_updated_at": "2026-08-16T21:22:32+05:30"
+    },
+    "gad_admin_reforms": {
+      "count": 948,
+      "years_covered": [],
+      "status": "exhausted",
+      "status_note": "Walked the GridView postback pagination for https://artd.gujarat.gov.in/government-resolution.htm (5 pages, reached_end=True). Grid paging was walked until 3 consecutive pages returned no new links.",
+      "last_fetch_method": "ASP.NET GridView postback pagination crawl of https://artd.gujarat.gov.in/government-resolution.htm",
+      "status_updated_at": "2026-08-16T20:46:37+05:30"
+    },
+    "gad_nri": {
+      "count": 0,
+      "years_covered": [],
+      "status": "blocked",
+      "status_note": "GR/document listing at https://artd.gujarat.gov.in/nri-nrg.htm is rendered client-side via JS/AJAX -- plain HTTP requests see an empty page shell. Using a real browser (Playwright) to execute that JS instead triggers the site's WAF, which detects headless-browser fingerprints and returns either a math CAPTCHA (\"Security check... enter the above result\") or a hard block (\"Web Page Blocked, Attack ID: 20000021\"). Plain requests are NOT blocked on these same domains -- confirmed by re-testing immediately after. Getting past this requires either solving a CAPTCHA or evading headless-browser detection, both of which are circumventing a deliberate anti-bot control and were not attempted.",
+      "last_fetch_method": "plain requests (empty JS shell) + Playwright (WAF/CAPTCHA-blocked); no working method found",
+      "status_updated_at": "2026-08-16T22:16:44+05:30",
+      "external_link": {
+        "display_name": "NRI Division (General Administration Department)",
+        "jurisdiction": "Gujarat State",
+        "homepage_url": "https://artd.gujarat.gov.in/nri-nrg.htm",
+        "listing_url": "https://artd.gujarat.gov.in/nri-nrg.htm",
+        "access_note": "Page is WAF-protected against automated browsers (Attack ID block). Link out to the live source instead of a local mirror."
+      }
+    },
+    "gad_personnel": {
+      "count": 1528,
+      "years_covered": [],
+      "status": "exhausted",
+      "status_note": "Walked the GridView postback pagination for https://gad.gujarat.gov.in/personnel/government-resolutions.htm (104 pages, reached_end=True). Grid paging was walked until 3 consecutive pages returned no new links.",
+      "last_fetch_method": "ASP.NET GridView postback pagination crawl of https://gad.gujarat.gov.in/personnel/government-resolutions.htm",
+      "status_updated_at": "2026-08-16T20:43:45+05:30"
+    },
+    "gad_planning": {
+      "count": 56,
+      "years_covered": [],
+      "status": "exhausted",
+      "status_note": "Walked the GridView postback pagination for https://planning.gujarat.gov.in/govt-resolution.htm (5 pages, reached_end=True). Grid paging was walked until 3 consecutive pages returned no new links.",
+      "last_fetch_method": "ASP.NET GridView postback pagination crawl of https://planning.gujarat.gov.in/govt-resolution.htm",
+      "status_updated_at": "2026-08-16T20:44:14+05:30"
+    },
+    "gudm_urban_dev": {
+      "count": 20,
+      "years_covered": [],
+      "status": "unknown"
+    },
+    "gujarat_hc_judgments": {
+      "count": 5933,
+      "years_covered": [
+        1950,
+        1960,
+        1961,
+        1965,
+        1968,
+        1970,
+        1971,
+        1972,
+        1973,
+        1974,
+        1976,
+        1977,
+        1978,
+        1979,
+        1980,
+        1981,
+        1982,
+        1983,
+        1984,
+        1985,
+        1986,
+        1987,
+        1988,
+        1989,
+        1990,
+        1991,
+        1992,
+        1993,
+        1994,
+        1995,
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2009,
+        2010,
+        2011,
+        2012,
+        2013,
+        2014,
+        2015,
+        2016,
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022,
+        2023,
+        2024,
+        2025,
+        2026
+      ],
+      "status": "exhausted",
+      "status_note": "Walked the /gujaratijudgments listing page-by-page from page 0 until a page returned zero PDF links (empty at page 120). This is the 'Gujarati translated' High Court judgments listing specifically -- the site may have other judgment listings (e.g. English-language orders) not covered by this crawl.",
+      "last_fetch_method": "paginated listing crawl (?page=0..119) of /gujaratijudgments",
+      "status_updated_at": "2026-08-16T21:44:46+05:30"
+    },
+    "health_family_welfare": {
+      "count": 17,
+      "years_covered": [],
+      "status": "partial",
+      "status_note": "Pagination controls were detected on this page after all -- re-check crawl logic.",
+      "last_fetch_method": "single-page listing scrape of https://gujhealth.gujarat.gov.in/government-resolutions.htm",
+      "status_updated_at": "2026-08-16T21:57:10+05:30"
+    },
+    "home_department": {
+      "count": 1580,
+      "years_covered": [],
+      "status": "unknown"
+    },
+    "india_code": {
+      "count": 1088,
+      "years_covered": [
+        1836,
+        1838,
+        1839,
+        1842,
+        1846,
+        1848,
+        1849,
+        1850,
+        1851,
+        1852,
+        1853,
+        1854,
+        1855,
+        1856,
+        1857,
+        1859,
+        1860,
+        1861,
+        1863,
+        1864,
+        1867,
+        1868,
+        1869,
+        1870,
+        1871,
+        1872,
+        1873,
+        1874,
+        1875,
+        1876,
+        1877,
+        1878,
+        1879,
+        1880,
+        1881,
+        1882,
+        1883,
+        1884,
+        1885,
+        1886,
+        1887,
+        1888,
+        1890,
+        1891,
+        1892,
+        1893,
+        1894,
+        1897,
+        1898,
+        1899,
+        1900,
+        1901,
+        1903,
+        1904,
+        1908,
+        1909,
+        1910,
+        1912,
+        1913,
+        1914,
+        1915,
+        1916,
+        1917,
+        1918,
+        1919,
+        1920,
+        1921,
+        1922,
+        1923,
+        1925,
+        1927,
+        1928,
+        1929,
+        1930,
+        1932,
+        1933,
+        1934,
+        1936,
+        1937,
+        1938,
+        1939,
+        1940,
+        1942,
+        1943,
+        1944,
+        1945,
+        1946,
+        1947,
+        1948,
+        1949,
+        1950,
+        1951,
+        1952,
+        1953,
+        1954,
+        1955,
+        1956,
+        1957,
+        1958,
+        1959,
+        1960,
+        1961,
+        1962,
+        1963,
+        1964,
+        1965,
+        1966,
+        1967,
+        1968,
+        1969,
+        1970,
+        1971,
+        1972,
+        1973,
+        1974,
+        1975,
+        1976,
+        1977,
+        1978,
+        1979,
+        1980,
+        1981,
+        1982,
+        1983,
+        1984,
+        1985,
+        1986,
+        1987,
+        1988,
+        1989,
+        1990,
+        1991,
+        1992,
+        1993,
+        1994,
+        1995,
+        1996,
+        1997,
+        1998,
+        1999,
+        2000,
+        2001,
+        2002,
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2009,
+        2010,
+        2011,
+        2012,
+        2013,
+        2014,
+        2015,
+        2016,
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "status": "partial",
+      "status_note": "Walked the shorttitle browse index end-to-end for both collections (central Acts handle 1362, Gujarat Acts handle 2455) and reached the site-reported item counts: {'central': {'listed': 845, 'reported_total': 845}, 'gujarat': {'listed': 251, 'reported_total': 251}}. Both indexes are exhausted, but only these two collections (Central + Gujarat) were crawled -- other states/UTs on indiacode.nic.in were not touched, and some items had no bitstream (PDF) link and were skipped (8 failures).",
+      "last_fetch_method": "DSpace shorttitle browse index crawl (offset paging) over collections 1362 (Central) and 2455 (Gujarat)",
+      "status_updated_at": "2026-08-16T21:21:16+05:30"
+    },
+    "industries_mines": {
+      "count": 0,
+      "years_covered": [],
+      "status": "blocked",
+      "status_note": "GR/document listing at https://imd.gujarat.gov.in/en/government-resolutions is rendered client-side via JS/AJAX -- plain HTTP requests see an empty page shell. Using a real browser (Playwright) to execute that JS instead triggers the site's WAF, which detects headless-browser fingerprints and returns either a math CAPTCHA (\"Security check... enter the above result\") or a hard block (\"Web Page Blocked, Attack ID: 20000021\"). Plain requests are NOT blocked on these same domains -- confirmed by re-testing immediately after. Getting past this requires either solving a CAPTCHA or evading headless-browser detection, both of which are circumventing a deliberate anti-bot control and were not attempted.",
+      "last_fetch_method": "plain requests (empty JS shell) + Playwright (WAF/CAPTCHA-blocked); no working method found",
+      "status_updated_at": "2026-08-16T22:16:44+05:30",
+      "external_link": {
+        "display_name": "Industries & Mines Department",
+        "jurisdiction": "Gujarat State",
+        "homepage_url": "https://imd.gujarat.gov.in/en/home",
+        "listing_url": "https://imd.gujarat.gov.in/en/government-resolutions",
+        "access_note": "JS-rendered listing, WAF-protected against automated browsers. Link out to the live source instead of a local mirror."
+      }
+    },
+    "info_broadcasting": {
+      "count": 2,
+      "years_covered": [],
+      "status": "unknown"
+    },
+    "labour_deeper": {
+      "count": 15,
+      "years_covered": [],
+      "status": "partial",
+      "status_note": "Pagination controls were detected on this page after all -- re-check crawl logic.",
+      "last_fetch_method": "single-page listing scrape of https://www.labour.gujarat.gov.in/e-citizen-government-resolution.htm",
+      "status_updated_at": "2026-08-16T21:28:28+05:30"
+    },
+    "labour_employment": {
+      "count": 182,
+      "years_covered": [],
+      "status": "unknown"
+    },
+    "legal_department": {
+      "count": 0,
+      "years_covered": [],
+      "status": "blocked",
+      "status_note": "GR/document listing at https://legal.gujarat.gov.in/GovernmentResolutions is rendered client-side via JS/AJAX -- plain HTTP requests see an empty page shell. Using a real browser (Playwright) to execute that JS instead triggers the site's WAF, which detects headless-browser fingerprints and returns either a math CAPTCHA (\"Security check... enter the above result\") or a hard block (\"Web Page Blocked, Attack ID: 20000021\"). Plain requests are NOT blocked on these same domains -- confirmed by re-testing immediately after. Getting past this requires either solving a CAPTCHA or evading headless-browser detection, both of which are circumventing a deliberate anti-bot control and were not attempted.",
+      "last_fetch_method": "plain requests (empty JS shell) + Playwright (WAF/CAPTCHA-blocked); no working method found",
+      "status_updated_at": "2026-08-16T22:16:44+05:30",
+      "external_link": {
+        "display_name": "Legal Department",
+        "jurisdiction": "Gujarat State",
+        "homepage_url": "https://legal.gujarat.gov.in/",
+        "listing_url": "https://legal.gujarat.gov.in/GovernmentResolutions",
+        "access_note": "JS-rendered listing, WAF-protected against automated browsers. Link out to the live source instead of a local mirror."
+      }
+    },
+    "legislative_parliamentary": {
+      "count": 0,
+      "years_covered": [],
+      "status": "blocked",
+      "status_note": "GR/document listing at https://lpd.gujarat.gov.in/Acts is rendered client-side via JS/AJAX -- plain HTTP requests see an empty page shell. Using a real browser (Playwright) to execute that JS instead triggers the site's WAF, which detects headless-browser fingerprints and returns either a math CAPTCHA (\"Security check... enter the above result\") or a hard block (\"Web Page Blocked, Attack ID: 20000021\"). Plain requests are NOT blocked on these same domains -- confirmed by re-testing immediately after. Getting past this requires either solving a CAPTCHA or evading headless-browser detection, both of which are circumventing a deliberate anti-bot control and were not attempted.",
+      "last_fetch_method": "plain requests (empty JS shell) + Playwright (WAF/CAPTCHA-blocked); no working method found",
+      "status_updated_at": "2026-08-16T22:16:44+05:30",
+      "external_link": {
+        "display_name": "Legislative & Parliamentary Affairs Department",
+        "jurisdiction": "Gujarat State",
+        "homepage_url": "https://lpd.gujarat.gov.in/",
+        "listing_url": "https://lpd.gujarat.gov.in/Acts",
+        "access_note": "JS-rendered Acts/Ordinances listing, WAF-protected against automated browsers. Link out to the live source instead of a local mirror."
+      }
+    },
+    "mha_central": {
+      "count": 306,
+      "years_covered": [],
+      "status": "partial",
+      "status_note": "Walked notifications/circular and archive-circular pagination end-to-end (stopped each listing when a page returned zero new PDF links), so those two listings specifically are exhausted. But other MHA sections (common-circulars, document-reports, press releases, orders) were not crawled by this script, so the source as a whole is still partial.",
+      "last_fetch_method": "paginated listing crawl (?page=0..34) across notifications/circular and archive-circular",
+      "status_updated_at": "2026-08-16T20:12:38+05:30"
+    },
+    "narmada_water": {
+      "count": 0,
+      "years_covered": [],
+      "status": "blocked",
+      "status_note": "GR/document listing at https://guj-nwrws.gujarat.gov.in/ is rendered client-side via JS/AJAX -- plain HTTP requests see an empty page shell. Using a real browser (Playwright) to execute that JS instead triggers the site's WAF, which detects headless-browser fingerprints and returns either a math CAPTCHA (\"Security check... enter the above result\") or a hard block (\"Web Page Blocked, Attack ID: 20000021\"). Plain requests are NOT blocked on these same domains -- confirmed by re-testing immediately after. Getting past this requires either solving a CAPTCHA or evading headless-browser detection, both of which are circumventing a deliberate anti-bot control and were not attempted.",
+      "last_fetch_method": "plain requests (empty JS shell) + Playwright (WAF/CAPTCHA-blocked); no working method found",
+      "status_updated_at": "2026-08-16T22:16:44+05:30",
+      "external_link": {
+        "display_name": "Narmada, Water Resources, Water Supply and Kalpsar Department",
+        "jurisdiction": "Gujarat State",
+        "homepage_url": "https://guj-nwrws.gujarat.gov.in/",
+        "listing_url": "https://guj-nwrws.gujarat.gov.in/",
+        "access_note": "JS-rendered listing, WAF-protected against automated browsers. Link out to the live source instead of a local mirror."
+      }
+    },
+    "panchayat_deeper": {
+      "count": 970,
+      "years_covered": [],
+      "status": "exhausted",
+      "status_note": "Fetched the single listing page at https://panchayat.gujarat.gov.in/en/government-resolutions; it dumps its full GR list without pagination (no __doPostBack or ?page= controls found), so every PDF link on the page was captured. Other sections of this department's site (if any) were not crawled.",
+      "last_fetch_method": "single-page listing scrape of https://panchayat.gujarat.gov.in/en/government-resolutions",
+      "status_updated_at": "2026-08-16T22:02:18+05:30"
+    },
+    "panchayat_rural_housing": {
+      "count": 17,
+      "years_covered": [],
+      "status": "unknown"
+    },
+    "ports_transport": {
+      "count": 2,
+      "years_covered": [],
+      "status": "unknown"
+    },
+    "revenue_circulars": {
+      "count": 5,
+      "years_covered": [],
+      "status": "unknown"
+    },
+    "revenue_department": {
+      "count": 0,
+      "years_covered": [],
+      "status": "blocked",
+      "status_note": "GR/document listing at https://revenuedepartment.gujarat.gov.in/latest-updates is rendered client-side via JS/AJAX -- plain HTTP requests see an empty page shell. Using a real browser (Playwright) to execute that JS instead triggers the site's WAF, which detects headless-browser fingerprints and returns either a math CAPTCHA (\"Security check... enter the above result\") or a hard block (\"Web Page Blocked, Attack ID: 20000021\"). Plain requests are NOT blocked on these same domains -- confirmed by re-testing immediately after. Getting past this requires either solving a CAPTCHA or evading headless-browser detection, both of which are circumventing a deliberate anti-bot control and were not attempted.",
+      "last_fetch_method": "plain requests (empty JS shell) + Playwright (WAF/CAPTCHA-blocked); no working method found",
+      "status_updated_at": "2026-08-16T22:16:44+05:30",
+      "external_link": {
+        "display_name": "Revenue Department",
+        "jurisdiction": "Gujarat State",
+        "homepage_url": "https://revenuedepartment.gujarat.gov.in/",
+        "listing_url": "https://revenuedepartment.gujarat.gov.in/latest-updates",
+        "access_note": "GR/document listing is JS-rendered and the site is WAF-protected against automated browsers. Link out to the live source instead of a local mirror."
+      }
+    },
+    "roads_buildings": {
+      "count": 1,
+      "years_covered": [],
+      "status": "unknown"
+    },
+    "rural_dev": {
+      "count": 0,
+      "years_covered": [],
+      "status": "blocked",
+      "status_note": "Gujarat Rural Development has its own site at ruraldev.gujarat.gov.in (distinct from panchayat.gujarat.gov.in, which is already captured in panchayat_deeper). Its GR/news listing (WhatsNew/Index) is JS-rendered (empty via plain requests) and the site is WAF-protected against headless browsers (confirmed: Playwright hit \"Web Page Blocked, Attack ID: 20000021\"). Same block pattern as the other blocked Gujarat department sites.",
+      "last_fetch_method": "plain requests (empty JS shell) + Playwright (WAF-blocked); no working method found",
+      "status_updated_at": "2026-08-16T22:19:08+05:30",
+      "external_link": {
+        "display_name": "Commissionerate of Rural Development",
+        "jurisdiction": "Gujarat State",
+        "homepage_url": "https://ruraldev.gujarat.gov.in/",
+        "listing_url": "https://ruraldev.gujarat.gov.in/WhatsNew/Index?type=Past",
+        "access_note": "JS-rendered listing, WAF-protected against automated browsers (Attack ID block). Link out to the live source instead of a local mirror."
+      }
+    },
+    "social_justice": {
+      "count": 0,
+      "years_covered": [],
+      "status": "blocked",
+      "status_note": "GR/document listing at https://sje.gujarat.gov.in/ is rendered client-side via JS/AJAX -- plain HTTP requests see an empty page shell. Using a real browser (Playwright) to execute that JS instead triggers the site's WAF, which detects headless-browser fingerprints and returns either a math CAPTCHA (\"Security check... enter the above result\") or a hard block (\"Web Page Blocked, Attack ID: 20000021\"). Plain requests are NOT blocked on these same domains -- confirmed by re-testing immediately after. Getting past this requires either solving a CAPTCHA or evading headless-browser detection, both of which are circumventing a deliberate anti-bot control and were not attempted.",
+      "last_fetch_method": "plain requests (empty JS shell) + Playwright (WAF/CAPTCHA-blocked); no working method found",
+      "status_updated_at": "2026-08-16T22:16:44+05:30",
+      "external_link": {
+        "display_name": "Social Justice & Empowerment Department",
+        "jurisdiction": "Gujarat State",
+        "homepage_url": "https://sje.gujarat.gov.in/",
+        "listing_url": "https://sje.gujarat.gov.in/",
+        "access_note": "JS-rendered listing, WAF-protected against automated browsers. Link out to the live source instead of a local mirror."
+      }
+    },
+    "sports_youth": {
+      "count": 15,
+      "years_covered": [],
+      "status": "partial",
+      "status_note": "Pagination controls were detected on this page after all -- re-check crawl logic.",
+      "last_fetch_method": "single-page listing scrape of https://sycd.gujarat.gov.in/government-resolution.htm",
+      "status_updated_at": "2026-08-16T22:03:20+05:30"
+    },
+    "urban_dev": {
+      "count": 54,
+      "years_covered": [],
+      "status": "exhausted",
+      "status_note": "Fetched the single listing page at https://udd.gujarat.gov.in/; it dumps its full GR list without pagination (no __doPostBack or ?page= controls found), so every PDF link on the page was captured. Other sections of this department's site (if any) were not crawled.",
+      "last_fetch_method": "single-page listing scrape of https://udd.gujarat.gov.in/",
+      "status_updated_at": "2026-08-16T21:49:02+05:30"
+    },
+    "women_child_deeper": {
+      "count": 0,
+      "years_covered": [],
+      "status": "blocked",
+      "status_note": "GR/document listing at https://wcd.gujarat.gov.in/circular_notification is rendered client-side via JS/AJAX -- plain HTTP requests see an empty page shell. Using a real browser (Playwright) to execute that JS instead triggers the site's WAF, which detects headless-browser fingerprints and returns either a math CAPTCHA (\"Security check... enter the above result\") or a hard block (\"Web Page Blocked, Attack ID: 20000021\"). Plain requests are NOT blocked on these same domains -- confirmed by re-testing immediately after. Getting past this requires either solving a CAPTCHA or evading headless-browser detection, both of which are circumventing a deliberate anti-bot control and were not attempted.",
+      "last_fetch_method": "plain requests (empty JS shell) + Playwright (WAF/CAPTCHA-blocked); no working method found",
+      "status_updated_at": "2026-08-16T22:16:44+05:30",
+      "external_link": {
+        "display_name": "Women and Child Development Department",
+        "jurisdiction": "Gujarat State",
+        "homepage_url": "https://wcd.gujarat.gov.in/",
+        "listing_url": "https://wcd.gujarat.gov.in/circular_notification",
+        "access_note": "Circular/notification listing serves a CAPTCHA challenge to automated browsers. Link out to the live source instead of a local mirror."
+      }
+    },
+    "women_child_dev": {
+      "count": 6,
+      "years_covered": [],
+      "status": "unknown"
+    }
+  },
+  "total_pdfs": 13088,
+  "external_only_sources": {}
+}

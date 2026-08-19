@@ -1,0 +1,86 @@
+{
+  "revenue_department": {
+    "display_name": "Revenue Department",
+    "jurisdiction": "Gujarat State",
+    "homepage_url": "https://revenuedepartment.gujarat.gov.in/",
+    "listing_url": "https://revenuedepartment.gujarat.gov.in/latest-updates",
+    "access_note": "GR/document listing is JS-rendered and the site is WAF-protected against automated browsers. Link out to the live source instead of a local mirror."
+  },
+  "finance_department": {
+    "display_name": "Finance Department",
+    "jurisdiction": "Gujarat State",
+    "homepage_url": "https://financedepartment.gujarat.gov.in/",
+    "listing_url": "https://financedepartment.gujarat.gov.in/",
+    "access_note": "JS-rendered listing, WAF-protected against automated browsers. Link out to the live source instead of a local mirror."
+  },
+  "education": {
+    "display_name": "Education Department",
+    "jurisdiction": "Gujarat State",
+    "homepage_url": "https://education.gujarat.gov.in/Index",
+    "listing_url": "https://education.gujarat.gov.in/Main/GovernmentResolution",
+    "access_note": "JS-rendered listing, WAF-protected against automated browsers. Link out to the live source instead of a local mirror."
+  },
+  "industries_mines": {
+    "display_name": "Industries & Mines Department",
+    "jurisdiction": "Gujarat State",
+    "homepage_url": "https://imd.gujarat.gov.in/en/home",
+    "listing_url": "https://imd.gujarat.gov.in/en/government-resolutions",
+    "access_note": "JS-rendered listing, WAF-protected against automated browsers. Link out to the live source instead of a local mirror."
+  },
+  "legal_department": {
+    "display_name": "Legal Department",
+    "jurisdiction": "Gujarat State",
+    "homepage_url": "https://legal.gujarat.gov.in/",
+    "listing_url": "https://legal.gujarat.gov.in/GovernmentResolutions",
+    "access_note": "JS-rendered listing, WAF-protected against automated browsers. Link out to the live source instead of a local mirror."
+  },
+  "legislative_parliamentary": {
+    "display_name": "Legislative & Parliamentary Affairs Department",
+    "jurisdiction": "Gujarat State",
+    "homepage_url": "https://lpd.gujarat.gov.in/",
+    "listing_url": "https://lpd.gujarat.gov.in/Acts",
+    "access_note": "JS-rendered Acts/Ordinances listing, WAF-protected against automated browsers. Link out to the live source instead of a local mirror."
+  },
+  "agri_cooperation": {
+    "display_name": "Agriculture, Farmers Welfare and Cooperation Department",
+    "jurisdiction": "Gujarat State",
+    "homepage_url": "https://agri.gujarat.gov.in/",
+    "listing_url": "https://agri.gujarat.gov.in/GR",
+    "access_note": "GR page itself serves a CAPTCHA challenge to automated browsers. Link out to the live source instead of a local mirror."
+  },
+  "social_justice": {
+    "display_name": "Social Justice & Empowerment Department",
+    "jurisdiction": "Gujarat State",
+    "homepage_url": "https://sje.gujarat.gov.in/",
+    "listing_url": "https://sje.gujarat.gov.in/",
+    "access_note": "JS-rendered listing, WAF-protected against automated browsers. Link out to the live source instead of a local mirror."
+  },
+  "narmada_water": {
+    "display_name": "Narmada, Water Resources, Water Supply and Kalpsar Department",
+    "jurisdiction": "Gujarat State",
+    "homepage_url": "https://guj-nwrws.gujarat.gov.in/",
+    "listing_url": "https://guj-nwrws.gujarat.gov.in/",
+    "access_note": "JS-rendered listing, WAF-protected against automated browsers. Link out to the live source instead of a local mirror."
+  },
+  "gad_nri": {
+    "display_name": "NRI Division (General Administration Department)",
+    "jurisdiction": "Gujarat State",
+    "homepage_url": "https://artd.gujarat.gov.in/nri-nrg.htm",
+    "listing_url": "https://artd.gujarat.gov.in/nri-nrg.htm",
+    "access_note": "Page is WAF-protected against automated browsers (Attack ID block). Link out to the live source instead of a local mirror."
+  },
+  "women_child_deeper": {
+    "display_name": "Women and Child Development Department",
+    "jurisdiction": "Gujarat State",
+    "homepage_url": "https://wcd.gujarat.gov.in/",
+    "listing_url": "https://wcd.gujarat.gov.in/circular_notification",
+    "access_note": "Circular/notification listing serves a CAPTCHA challenge to automated browsers. Link out to the live source instead of a local mirror."
+  },
+  "rural_dev": {
+    "display_name": "Commissionerate of Rural Development",
+    "jurisdiction": "Gujarat State",
+    "homepage_url": "https://ruraldev.gujarat.gov.in/",
+    "listing_url": "https://ruraldev.gujarat.gov.in/WhatsNew/Index?type=Past",
+    "access_note": "JS-rendered listing, WAF-protected against automated browsers (Attack ID block). Link out to the live source instead of a local mirror."
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "status": "exhausted",
+  "note": "Walked the /gujaratijudgments listing page-by-page from page 0 until a page returned zero PDF links (empty at page 120). This is the 'Gujarati translated' High Court judgments listing specifically -- the site may have other judgment listings (e.g. English-language orders) not covered by this crawl.",
+  "last_fetch_method": "paginated listing crawl (?page=0..119) of /gujaratijudgments",
+  "updated_at": "2026-08-16T21:44:46+05:30"
+}

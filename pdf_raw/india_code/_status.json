@@ -1,0 +1,6 @@
+{
+  "status": "partial",
+  "note": "Walked the shorttitle browse index end-to-end for both collections (central Acts handle 1362, Gujarat Acts handle 2455) and reached the site-reported item counts: {'central': {'listed': 845, 'reported_total': 845}, 'gujarat': {'listed': 251, 'reported_total': 251}}. Both indexes are exhausted, but only these two collections (Central + Gujarat) were crawled -- other states/UTs on indiacode.nic.in were not touched, and some items had no bitstream (PDF) link and were skipped (8 failures).",
+  "last_fetch_method": "DSpace shorttitle browse index crawl (offset paging) over collections 1362 (Central) and 2455 (Gujarat)",
+  "updated_at": "2026-08-16T21:21:16+05:30"
+}

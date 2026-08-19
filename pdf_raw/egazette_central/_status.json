@@ -1,0 +1,6 @@
+{
+  "status": "partial",
+  "note": "Only the 2026 WriteReadData folder has been swept (IDs 275301-275491). Years 1958-2025 and any IDs outside this range are untried. Site has no crawled listing/index yet, so this is an ID-range sweep, not a full crawl.",
+  "last_fetch_method": "id_range_sweep 275301-275491 (2026 folder only)",
+  "updated_at": "2026-08-16T20:09:14+05:30"
+}

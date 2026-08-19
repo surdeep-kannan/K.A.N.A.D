@@ -1,0 +1,6 @@
+{
+  "status": "partial",
+  "note": "Walked notifications/circular and archive-circular pagination end-to-end (stopped each listing when a page returned zero new PDF links), so those two listings specifically are exhausted. But other MHA sections (common-circulars, document-reports, press releases, orders) were not crawled by this script, so the source as a whole is still partial.",
+  "last_fetch_method": "paginated listing crawl (?page=0..34) across notifications/circular and archive-circular",
+  "updated_at": "2026-08-16T20:12:38+05:30"
+}

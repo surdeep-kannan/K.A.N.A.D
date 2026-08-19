@@ -1,0 +1,6 @@
+{
+  "status": "exhausted",
+  "note": "Fetched the single listing page at https://udd.gujarat.gov.in/; it dumps its full GR list without pagination (no __doPostBack or ?page= controls found), so every PDF link on the page was captured. Other sections of this department's site (if any) were not crawled.",
+  "last_fetch_method": "single-page listing scrape of https://udd.gujarat.gov.in/",
+  "updated_at": "2026-08-16T21:49:02+05:30"
+}

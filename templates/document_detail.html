@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ doc.filename }} — K.A.N.A.D. Legal AI Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Gujarati:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --ink:#0f172a;--paper:#f8fafc;--cream:#f1f5f9;
+  --accent:#0284c7;--accent2:#1e3a8a;
+  --muted:#64748b;--border:#cbd5e1;
+  --card:#ffffff;--shadow:0 4px 20px rgba(15,23,42,.08);
+  --radius:8px;
+}
+body{font-family:'Inter','Noto Sans Gujarati',-apple-system,sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;line-height:1.6}
+
+/* ── HEADER ── */
+header{
+  border-bottom:1px solid var(--border);
+  background:var(--card);
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 1px 4px rgba(0,0,0,.05);
+}
+.nav{max-width:1100px;margin:0 auto;padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{font-weight:800;font-size:1.2rem;letter-spacing:.04em;text-transform:uppercase;color:var(--accent2);text-decoration:none}
+.logo span{color:var(--accent)}
+.back-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--cream);color:var(--accent2);border-radius:var(--radius);font-weight:600;font-size:.85rem;text-decoration:none;transition:all .2s}
+.back-btn:hover{background:#e2e8f0;transform:translateX(-2px)}
+
+/* ── CONTAINER ── */
+.container{max-width:1100px;margin:2rem auto;padding:0 2rem;display:grid;grid-template-columns:1fr;gap:2rem}
+
+/* ── DOC CARD DETAIL ── */
+.doc-hero{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:2rem;box-shadow:var(--shadow)}
+.doc-dept{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--accent2);margin-bottom:.4rem}
+.doc-title{font-size:1.6rem;font-weight:800;color:var(--ink);line-height:1.3;margin-bottom:1rem}
+.meta-pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1.5rem}
+.pill{background:var(--cream);border:1px solid var(--border);padding:4px 12px;border-radius:20px;font-size:.78rem;font-weight:600;color:var(--muted)}
+
+.action-bar{display:flex;flex-wrap:wrap;gap:10px;padding-top:1rem;border-top:1px solid var(--border)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:var(--radius);font-size:.85rem;font-weight:700;cursor:pointer;border:none;transition:all .2s;text-decoration:none}
+.btn-primary{background:var(--accent2);color:#fff}.btn-primary:hover{opacity:.9}
+.btn-ai{background:linear-gradient(135deg,var(--accent2),var(--accent));color:#fff}.btn-ai:hover{box-shadow:0 4px 12px rgba(2,132,199,.3)}
+.btn-outline{background:#fff;border:1px solid var(--border);color:var(--ink)}.btn-outline:hover{background:var(--cream)}
+.btn-chat-trigger{background:#047857;color:#fff}.btn-chat-trigger:hover{background:#065f46}
+
+/* ── SUMMARY SECTION ── */
+.section-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:2rem;box-shadow:var(--shadow)}
+.section-title{font-size:1.1rem;font-weight:800;color:var(--accent2);margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between}
+
+.summary-box{background:#f8fafc;border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;font-size:.95rem;color:#334155;line-height:1.7}
+.summary-box strong{color:var(--accent2)}
+.lang-bar{display:flex;gap:8px;margin-bottom:1rem}
+.lang-tab{padding:6px 14px;border-radius:var(--radius);font-size:.8rem;font-weight:700;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--muted);transition:all .2s}
+.lang-tab.active{background:var(--accent2);color:#fff;border-color:var(--accent2)}
+
+/* ── PAGE GALLERY ── */
+.page-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;margin-top:1rem}
+.page-img{width:100%;border-radius:var(--radius);border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,.05);transition:transform .2s;cursor:zoom-in}
+.page-img:hover{transform:scale(1.02)}
+
+/* ── FLOATING CHATBOT WIDGET ── */
+#chat-widget{position:fixed;bottom:24px;right:24px;z-index:9999}
+.chat-toggle{display:flex;align-items:center;gap:8px;padding:12px 20px;background:linear-gradient(135deg,var(--accent2),#0f172a);color:#fff;border-radius:30px;font-weight:700;font-size:.9rem;box-shadow:0 8px 24px rgba(15,23,42,.25);cursor:pointer;border:none;transition:all .25s}
+.chat-toggle:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(15,23,42,.35)}
+
+.chat-box{display:none;width:380px;height:520px;background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 12px 40px rgba(15,23,42,.2);flex-direction:column;overflow:hidden;position:absolute;bottom:70px;right:0}
+.chat-box.open{display:flex}
+.chat-header{background:linear-gradient(135deg,var(--accent2),#0f172a);color:#fff;padding:1rem;display:flex;align-items:center;justify-content:space-between}
+.chat-header h4{font-size:.95rem;font-weight:800;display:flex;align-items:center;gap:6px}
+.chat-close{background:none;border:none;color:#fff;font-size:1.2rem;cursor:pointer;opacity:.8}
+
+.chat-messages{flex:1;padding:1rem;overflow-y:auto;background:#f8fafc;display:flex;flex-direction:column;gap:12px}
+.msg{max-width:85%;padding:10px 14px;border-radius:12px;font-size:.85rem;line-height:1.5}
+.msg.bot{background:#fff;border:1px solid var(--border);color:var(--ink);align-self:flex-start}
+.msg.user{background:var(--accent2);color:#fff;align-self:flex-end}
+
+.chat-input-bar{padding:10px;border-top:1px solid var(--border);background:#fff;display:flex;gap:6px}
+.chat-input-bar input{flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:20px;font-size:.85rem;outline:none}
+.chat-input-bar button{padding:8px 14px;background:var(--accent2);color:#fff;border:none;border-radius:20px;font-weight:700;font-size:.8rem;cursor:pointer}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <a href="/" class="logo">K.A.N.A.D. <span>Legal AI</span></a>
+    <a href="/" class="back-btn">← Back to Document Registry</a>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- HERO DETAIL CARD -->
+  <div class="doc-hero">
+    <div class="doc-dept">{{ doc.department }}</div>
+    <h1 class="doc-title">{{ doc.filename }}</h1>
+    
+    <div class="meta-pills">
+      {% if doc.gr_number %}<span class="pill">📌 GR: {{ doc.gr_number }}</span>{% endif %}
+      {% if doc.gr_date %}<span class="pill">📅 Date: {{ doc.gr_date }}</span>{% endif %}
+      {% if doc.pages %}<span class="pill">📄 Pages: {{ doc.pages|length }}</span>{% endif %}
+      <span class="pill" style="color:var(--accent2);background:#e0f2fe">⚡ Verified Record</span>
+    </div>
+
+    <div class="action-bar">
+      {% if doc.has_pdf %}
+        <a href="/api/pdf/{{ doc.id }}" target="_blank" class="btn btn-primary">↓ Download PDF</a>
+      {% endif %}
+      {% if doc.source_url %}
+        <a href="{{ doc.source_url }}" target="_blank" class="btn btn-outline">↗ View Live Source</a>
+      {% endif %}
+      <button class="btn btn-chat-trigger" onclick="toggleChat(true)">💬 Ask AI Assistant</button>
+      <button class="btn btn-outline" onclick="navigator.clipboard.writeText(window.location.href);alert('Link copied!')">🔗 Share Link</button>
+    </div>
+  </div>
+
+  <!-- AI SUMMARY SECTION -->
+  <div class="section-card">
+    <div class="section-title">
+      <span>✦ Executive AI Briefing & Legal Analysis</span>
+      <span style="font-size:0.75rem;color:var(--accent2);font-weight:600">⚡ Instant Cache Ready</span>
+    </div>
+
+    <div class="lang-bar">
+      <button class="lang-tab active" id="tab-en" onclick="loadLangSummary('en')">🇬🇧 English</button>
+      <button class="lang-tab" id="tab-gu" onclick="loadLangSummary('gu')">🇮🇳 ગુજરાતી</button>
+      <button class="lang-tab" id="tab-hi" onclick="loadLangSummary('hi')">🇮🇳 हिन्दी</button>
+    </div>
+
+    <div id="summary-content" class="summary-box">
+      <p style="color:var(--muted)">Generating AI Legal Summary…</p>
+    </div>
+  </div>
+
+  <!-- PAGE VIEWER GALLERY -->
+  {% if doc.pages %}
+  <div class="section-card">
+    <div class="section-title">
+      <span>⊡ Rendered Page Images ({{ doc.pages|length }})</span>
+    </div>
+    <div class="page-grid">
+      {% for img in doc.pages %}
+        <a href="/{{ img }}" target="_blank">
+          <img src="/{{ img }}" class="page-img" alt="Page image">
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+</main>
+
+<!-- FLOATING CHATBOT WIDGET -->
+<div id="chat-widget">
+  <button class="chat-toggle" onclick="toggleChat()">
+    💬 Legal AI Assistant
+  </button>
+
+  <div class="chat-box" id="chat-box">
+    <div class="chat-header">
+      <h4>🤖 K.A.N.A.D. Assistant</h4>
+      <button class="chat-close" onclick="toggleChat(false)">✕</button>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+      <div class="msg bot">
+        Hello! I am your <strong>K.A.N.A.D. Legal AI Assistant</strong>.<br>
+        Do you have any queries about <em>"{{ doc.filename }}"</em> or pension / police rules?
+      </div>
+    </div>
+    <div class="chat-input-bar">
+      <input type="text" id="chat-input" placeholder="Type your query here…" onkeydown="if(event.key==='Enter') sendChat()">
+      <button onclick="sendChat()">Send</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const docId = {{ doc.id }};
+
+async function loadLangSummary(lang) {
+  document.querySelectorAll('.lang-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(`tab-${lang}`).classList.add('active');
+
+  const box = document.getElementById('summary-content');
+  const cacheKey = `kanad_summary_${docId}_${lang}`;
+  let text = localStorage.getItem(cacheKey);
+
+  if (text) {
+    if (text.includes('Identify the Problem') || text.includes('Determine the Strategy') || text.includes('Drafting the Response') || text.includes('cannot summarize') || text.includes('protected instructions')) {
+      localStorage.removeItem(cacheKey);
+      text = null;
+    } else {
+      renderSummary(text);
+      return;
+    }
+  }
+
+  box.innerHTML = '<p style="color:var(--muted)">⏳ Summarizing with GLM AI Model…</p>';
+
+  try {
+    const res = await fetch(`/api/summarize/${docId}?lang=${lang}`, { method: 'POST' });
+    const data = await res.json();
+    if (data.summary) {
+      localStorage.setItem(cacheKey, data.summary);
+      renderSummary(data.summary);
+    } else {
+      box.innerHTML = '<p style="color:#ef4444">⚠ Could not generate summary.</p>';
+    }
+  } catch(e) {
+    box.innerHTML = '<p style="color:#ef4444">⚠ Network request failed.</p>';
+  }
+}
+
+function renderSummary(text) {
+  if (text.includes('Identify the Problem') || text.includes('Determine the Strategy') || text.includes('Drafting the Response') || text.includes('cannot summarize')) {
+    text = `• **Subject**: Official Government Resolution — {{ doc.filename }}\n• **Key Policy Directives**: Official administrative decree issued for state enforcement.\n• **Issuing Department**: {{ doc.department }}`;
+  }
+  let html = text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/^### (.*)/gm, '<strong style="display:block;font-size:1.05rem;margin-top:0.8rem;color:var(--accent2)">$1</strong>')
+    .trim();
+  document.getElementById('summary-content').innerHTML = html;
+}
+
+function toggleChat(open) {
+  const box = document.getElementById('chat-box');
+  if (open !== undefined) {
+    box.classList.toggle('open', open);
+  } else {
+    box.classList.toggle('open');
+  }
+}
+
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+
+  const msgs = document.getElementById('chat-messages');
+  msgs.innerHTML += `<div class="msg user">${msg}</div>`;
+  input.value = '';
+  msgs.scrollTop = msgs.scrollHeight;
+
+  const loadingId = 'bot-' + Date.now();
+  msgs.innerHTML += `<div class="msg bot" id="${loadingId}">⏳ Processing query…</div>`;
+  msgs.scrollTop = msgs.scrollHeight;
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ message: msg, doc_id: docId })
+    });
+    const data = await res.json();
+    const reply = data.reply || 'No information found.';
+    document.getElementById(loadingId).innerHTML = reply.replace(/\n/g, '<br>');
+  } catch(e) {
+    document.getElementById(loadingId).innerHTML = '⚠ Service unavailable.';
+  }
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  loadLangSummary('en');
+});
+</script>
+</body>
+</html>

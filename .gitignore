@@ -1,0 +1,27 @@
+# Python / Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+venv/
+.env
+
+# Large image dumps
+pdf_images/
+
+# Ignore ALL PDFs in root and subdirectories (including trailing space variations)
+*.pdf*
+**/*.pdf*
+**/*.PDF*
+
+# Allow exactly 4 sample PDFs for repository demonstration
+!pdf_raw/labour_deeper/1_3088_1_Gr_1_labour_02062026.pdf
+!pdf_raw/labour_deeper/1_3104_1_GR1_05062026.pdf
+!pdf_raw/labour_deeper/1_3092_1_GR_4_SDC_02062026.pdf
+!pdf_raw/labour_deeper/1_3186_1_Draft_Letter_Bharatsinh_Parmar.pdf
+
+# OS / Editor artifacts
+.DS_Store
+.vscode/
+.idea/

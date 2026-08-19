@@ -1,0 +1,6 @@
+{
+  "status": "exhausted",
+  "note": "Walked the GridView postback pagination for https://artd.gujarat.gov.in/government-resolution.htm (5 pages, reached_end=True). Grid paging was walked until 3 consecutive pages returned no new links.",
+  "last_fetch_method": "ASP.NET GridView postback pagination crawl of https://artd.gujarat.gov.in/government-resolution.htm",
+  "updated_at": "2026-08-16T20:46:37+05:30"
+}
