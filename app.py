@@ -28,11 +28,40 @@ def available_pdf_filenames():
     except Exception:
         return set()
 
+import io, re, requests
+
+def fetch_remote_url_text(source_url, max_chars=8000):
+    """Fetch and extract text from a live official government webpage or remote PDF URL."""
+    if not source_url or not source_url.startswith('http'):
+        return ''
+    try:
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'}
+        res = requests.get(source_url, headers=headers, timeout=12, verify=False)
+        if res.status_code != 200 or not res.content:
+            return ''
+        
+        # 1. If PDF content stream
+        if res.content[:4] == b'%PDF' or 'pdf' in res.headers.get('Content-Type', '').lower():
+            text = ''
+            with pdfplumber.open(io.BytesIO(res.content)) as pdf:
+                for page in pdf.pages:
+                    text += (page.extract_text() or '') + '\n'
+                    if len(text) >= max_chars:
+                        break
+            return text.strip()[:max_chars]
+        else:
+            # 2. HTML Webpage text extraction
+            html_text = res.text
+            clean = re.sub(r'<(script|style).*?>.*?</\1>', '', html_text, flags=re.DOTALL | re.IGNORECASE)
+            clean = re.sub(r'<.*?>', ' ', clean)
+            clean = re.sub(r'\s+', ' ', clean).strip()
+            return clean[:max_chars]
+    except Exception as e:
+        print(f"Error scanning remote URL {source_url}: {e}")
+        return ''
+
 def extract_pdf_text(source_pdf_path, max_chars=8000):
-    """Pull real text out of a document's PDF on disk. Works for any document
-    (not a fixed set) -- called whenever the DB only holds a placeholder stub
-    instead of actual extracted text, so summarization always has real
-    content to work from."""
+    """Pull real text out of a document's PDF on disk."""
     if not source_pdf_path:
         return ''
     full_path = os.path.join(BASE_DIR, source_pdf_path)
@@ -50,15 +79,20 @@ def extract_pdf_text(source_pdf_path, max_chars=8000):
     return text.strip()[:max_chars]
 
 def get_document_text(doc_id, row):
-    """Real text to summarize for a document: the stored translation/summary
-    if it looks real, otherwise text freshly extracted from its PDF (cached
-    back to the DB so it's only extracted once)."""
+    """Real text to summarize for a document:
+    1. Stored translation/summary if valid.
+    2. Text freshly extracted from local PDF on disk.
+    3. Live text scanned directly from the official government webpage/PDF URL (source_url).
+    4. Cached back to SQLite DB so it's only extracted once.
+    """
     raw = row['english_translation'] or row['ai_summary'] or ''
     is_placeholder = (
         not raw or raw.startswith('Quarantined')
         or raw.startswith('Official Government Resolution document')
         or len(raw.strip()) < 50
     )
+    
+    # Step A: Local PDF on disk
     if is_placeholder and row['source_pdf_path']:
         extracted = extract_pdf_text(row['source_pdf_path'])
         if extracted and len(extracted) >= 50:
@@ -67,6 +101,17 @@ def get_document_text(doc_id, row):
             conn.commit()
             conn.close()
             return extracted
+
+    # Step B: Live Remote Government Webpage / PDF URL Scan
+    if is_placeholder and row.get('source_url'):
+        remote_text = fetch_remote_url_text(row['source_url'])
+        if remote_text and len(remote_text) >= 50:
+            conn = get_db()
+            conn.execute("UPDATE gr_documents SET english_translation = ? WHERE id = ?", (remote_text, doc_id))
+            conn.commit()
+            conn.close()
+            return remote_text
+
     if is_placeholder:
         dept_name = row['department'] or 'Government of Gujarat'
         return f"Document Title: {row['filename']}\nDepartment: {dept_name}\nOfficial Government Resolution and Policy Notification."
