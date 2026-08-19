@@ -1,0 +1,8 @@
+{
+  "appsail": [
+    {
+      "name": "kanad-legal-ai",
+      "source": "."
+    }
+  ]
+}

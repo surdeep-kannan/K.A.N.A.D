@@ -9,15 +9,24 @@ app = Flask(__name__, static_folder='static', template_folder='templates')
 
 def available_pdf_filenames():
     """Filenames of PDFs actually present under pdf_raw/ right now.
-
-    The DB has rows for documents whose PDFs were never checked into this
-    repo (see .gitignore), so search/related results are filtered against
-    this rather than a hardcoded id list.
+    If running in cloud deployment (Zoho AppSail) where pdf_raw is not bundled,
+    falls back to serving all verified database records via OCR text & source URLs.
     """
-    return {
+    local_files = {
         os.path.basename(p)
         for p in glob.glob(os.path.join(BASE_DIR, 'pdf_raw', '**', '*.pdf'), recursive=True)
     }
+    if local_files:
+        return local_files
+    try:
+        conn = get_db()
+        c = conn.cursor()
+        c.execute("SELECT filename FROM gr_documents")
+        db_files = {r['filename'] for r in c.fetchall()}
+        conn.close()
+        return db_files
+    except Exception:
+        return set()
 
 def extract_pdf_text(source_pdf_path, max_chars=8000):
     """Pull real text out of a document's PDF on disk. Works for any document

@@ -1,0 +1,8 @@
+{
+  "command": "gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 app:app",
+  "stack": "python3.10",
+  "env_variables": {
+    "ZOHO_PROJECT_ID": "60032549247",
+    "ZOHO_ORG_ID": "60074744957"
+  }
+}
