@@ -10,16 +10,22 @@ venv/
 # Large image dumps
 pdf_images/
 
-# Ignore ALL PDFs in root and subdirectories (including trailing space variations)
+# Ignore ALL PDFs in root and subdirectories
 *.pdf*
 **/*.pdf*
 **/*.PDF*
 
-# Allow exactly 4 sample PDFs for repository demonstration
+# Allow 10 sample PDFs across departments for test deployment
 !pdf_raw/labour_deeper/1_3088_1_Gr_1_labour_02062026.pdf
-!pdf_raw/labour_deeper/1_3104_1_GR1_05062026.pdf
-!pdf_raw/labour_deeper/1_3092_1_GR_4_SDC_02062026.pdf
-!pdf_raw/labour_deeper/1_3186_1_Draft_Letter_Bharatsinh_Parmar.pdf
+!pdf_raw/panchayat_deeper/ex93.pdf
+!pdf_raw/gad_admin_reforms/1_262_1_16-04-16.pdf
+!pdf_raw/gad_personnel/1_1015_1_TEM-1061-2948-G2-dt.22-10-1990-paripatra.pdf
+!pdf_raw/home_department/portal_gr_0098_MHL1020111243JHA26022013JUVENILEJAUSTICERULES.pdf
+!pdf_raw/urban_dev/vahan haraji.pdf
+!pdf_raw/india_code/gujarat_4659_buildingcontrol.pdf
+!pdf_raw/gad_planning/1_284_1_Margadarshak_yadi_sudharana_samiti.pdf
+!pdf_raw/egazette_state/egazette_state_doc_04.pdf
+!pdf_raw/egazette_central/central_gazette_275329.pdf
 
 # OS / Editor artifacts
 .DS_Store
