@@ -1,10 +1,67 @@
-import os, sqlite3, json, requests
+import os, sqlite3, json, requests, glob
+import pdfplumber
 from flask import Flask, request, jsonify, send_file, send_from_directory, render_template
 
-BASE_DIR = '/home/surdeep/Documents/K.A.N.A.D/production_pipeline'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, 'database', 'gujarat_gr_intel.db')
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
+
+def available_pdf_filenames():
+    """Filenames of PDFs actually present under pdf_raw/ right now.
+
+    The DB has rows for documents whose PDFs were never checked into this
+    repo (see .gitignore), so search/related results are filtered against
+    this rather than a hardcoded id list.
+    """
+    return {
+        os.path.basename(p)
+        for p in glob.glob(os.path.join(BASE_DIR, 'pdf_raw', '**', '*.pdf'), recursive=True)
+    }
+
+def extract_pdf_text(source_pdf_path, max_chars=8000):
+    """Pull real text out of a document's PDF on disk. Works for any document
+    (not a fixed set) -- called whenever the DB only holds a placeholder stub
+    instead of actual extracted text, so summarization always has real
+    content to work from."""
+    if not source_pdf_path:
+        return ''
+    full_path = os.path.join(BASE_DIR, source_pdf_path)
+    if not os.path.exists(full_path):
+        return ''
+    try:
+        text = ''
+        with pdfplumber.open(full_path) as pdf:
+            for page in pdf.pages:
+                text += (page.extract_text() or '') + '\n'
+                if len(text) >= max_chars:
+                    break
+    except Exception:
+        return ''
+    return text.strip()[:max_chars]
+
+def get_document_text(doc_id, row):
+    """Real text to summarize for a document: the stored translation/summary
+    if it looks real, otherwise text freshly extracted from its PDF (cached
+    back to the DB so it's only extracted once)."""
+    raw = row['english_translation'] or row['ai_summary'] or ''
+    is_placeholder = (
+        not raw or raw.startswith('Quarantined')
+        or raw.startswith('Official Government Resolution document')
+        or len(raw.strip()) < 50
+    )
+    if is_placeholder and row['source_pdf_path']:
+        extracted = extract_pdf_text(row['source_pdf_path'])
+        if extracted and len(extracted) >= 50:
+            conn = get_db()
+            conn.execute("UPDATE gr_documents SET english_translation = ? WHERE id = ?", (extracted, doc_id))
+            conn.commit()
+            conn.close()
+            return extracted
+    if is_placeholder:
+        dept_name = row['department'] or 'Government of Gujarat'
+        return f"Document Title: {row['filename']}\nDepartment: {dept_name}\nOfficial Government Resolution and Policy Notification."
+    return raw
 
 @app.after_request
 def add_cache_control_headers(response):
@@ -100,7 +157,14 @@ def search():
             "AND (english_translation IS NULL OR english_translation NOT LIKE 'Quarantined%')"
         )
 
-    params = []
+    # Restrict the feed to rows backed by a PDF that actually exists on disk.
+    on_disk = available_pdf_filenames()
+    if not on_disk:
+        return jsonify({'total': 0, 'page': page, 'results': []})
+    base += f" AND filename IN ({','.join('?' for _ in on_disk)})"
+    disk_params = list(on_disk)
+
+    params = list(disk_params)
     if query:
         base += " AND (filename REGEXP ? OR english_translation REGEXP ? OR gr_number REGEXP ? OR department REGEXP ?)"
         params.extend([query] * 4)
@@ -714,17 +778,19 @@ def _glm_summarize(raw_text, filename, department, lang='en'):
         )
     else:
         prompt = (
-            "Provide a comprehensive, detailed executive legal briefing of the following official Gujarat Government Resolution.\n\n"
+            "Provide a comprehensive, detailed executive legal briefing of the following official Gujarat Government Resolution. "
+            "Write each section as full explanatory sentences, not just short labels — explain the reasoning and context behind each "
+            "point, not only what it says. Aim for at least 2-3 sentences per bullet where the source material supports it.\n\n"
             "Required 4-Section Output Format:\n"
             "### 1. Executive Summary & Administrative Scope\n"
-            "<Detailed overview of the resolution order, its administrative background, and primary policy objective>\n\n"
+            "<Detailed, explanatory overview of the resolution order, its administrative background, why it was likely issued, and its primary policy objective>\n\n"
             "### 2. Key Policy Directives & Specific Provisions\n"
-            "• **Core Directives**: <Comprehensive breakdown listing all officer postings, personnel transfers, salary scales, or rules>\n"
-            "• **Departmental Conditions**: <Detailed compliance conditions and procedural rules>\n\n"
+            "• **Core Directives**: <Comprehensive, explanatory breakdown listing all officer postings, personnel transfers, salary scales, or rules, with context on what each provision means in practice>\n"
+            "• **Departmental Conditions**: <Detailed compliance conditions and procedural rules, explained clearly>\n\n"
             "### 3. Statutory References & Authorization\n"
-            "• **Issuing Authority**: <Department name, resolution reference number, and date>\n\n"
+            "• **Issuing Authority**: <Department name, resolution reference number, date, and the statutory basis for the order>\n\n"
             "### 4. Enforcement & Compliance Guidelines\n"
-            "• **Execution Mandate**: <Actionable enforcement instructions for district authorities and field departments>\n\n"
+            "• **Execution Mandate**: <Actionable enforcement instructions for district authorities and field departments, including expected reporting or follow-up>\n\n"
             f"DOCUMENT CONTENT:\n{clean_input}"
         )
 
@@ -732,64 +798,95 @@ def _glm_summarize(raw_text, filename, department, lang='en'):
         'model':       'crm-di-glm47b_30b_it',
         'messages':    [{'role': 'user', 'content': prompt}],
         'temperature': 0.1,
-        'max_tokens':  1200,
+        'max_tokens':  1800,
     }
-    r = requests.post(url, headers=headers, json=payload, timeout=90)
-    if r.status_code != 200:
-        return None, f'GLM API error {r.status_code}: {r.text[:200]}'
-
-    text = r.json().get('response', '')
-
     bad_markers = [
         "protected instructions", "can't help", "cannot summarize", "content is missing",
         "identify the problem", "determine the strategy", "drafting the response",
         "internal monologue", "self-correction", "please provide the text",
         "attempt 1", "attempt 2", "attempt 3"
     ]
+
+    # The model doesn't reliably wrap its reasoning in a single </think> tag --
+    # sometimes it plans out loud in plain bullet points instead. The one thing
+    # that's consistent is the required "### 1."/"### ૧." section heading we
+    # asked for, so anchor on that and discard everything before it (the
+    # planning/reasoning preamble), regardless of how it was formatted.
+    heading_re = re.compile(r'###\s*(?:1|૧)\.')
+
+    def _extract_final_answer(candidate):
+        if '</think>' in candidate:
+            candidate = candidate.split('</think>')[-1].strip()
+        m = heading_re.search(candidate)
+        if not m:
+            return None
+        return candidate[m.start():].strip()
+
+    # The GLM backend is occasionally flaky (500s, a truncated response, or
+    # reasoning-only output that never reaches the real answer) -- retry once
+    # before falling back to the generic template.
+    text = ''
+    last_err = None
+    for _ in range(2):
+        r = requests.post(url, headers=headers, json=payload, timeout=90)
+        if r.status_code != 200:
+            last_err = f'GLM API error {r.status_code}: {r.text[:200]}'
+            continue
+        raw_candidate = r.json().get('response', '')
+        candidate = _extract_final_answer(raw_candidate)
+        if candidate and not any(m in candidate.lower() for m in bad_markers) and len(candidate) >= 80:
+            text = candidate
+            last_err = None
+            break
+        text = candidate or ''
+        last_err = None
+
+    if not text and last_err:
+        return None, last_err
     if any(m in text.lower() for m in bad_markers) or not text.strip() or len(text.strip()) < 80:
         dept_name = department or "Government of Gujarat"
         clean_fn = filename.replace('.pdf', '').replace('_', ' ')
         if lang == 'gu':
             text = (
                 f"### ૧. કારોબારી સારાંશ અને વહીવટી વ્યાપ્તિ\n"
-                f"આ અધિકૃત સરકારી ઠરાવ (**{clean_fn}**) {dept_name} દ્વારા રાજ્ય વહીવટી સુધારાઓ અને સંસ્થાકીય નિયમન હેતુ જારી કરવામાં આવ્યો છે. આ હુકમ ખાતાકીય ચુસ્તતા અને સરકારી પ્રક્રિયાઓનું પાલન સુનિશ્ચિત કરે છે.\n\n"
+                f"આ અધિકૃત સરકારી ઠરાવ (**{clean_fn}**) {dept_name} દ્વારા રાજ્ય વહીવટી સુધારાઓ અને સંસ્થાકીય નિયમન હેતુ જારી કરવામાં આવ્યો છે. આ હુકમ ખાતાકીય ચુસ્તતા અને સરકારી પ્રક્રિયાઓનું પાલન સુનિશ્ચિત કરે છે. આ પ્રકારના ઠરાવો સામાન્ય રીતે હાલની ખાતાકીય પદ્ધતિની સમીક્ષા, બજેટ જોગવાઈ અથવા ઉચ્ચ વહીવટી સત્તાના નિર્દેશમાંથી ઉદ્ભવે છે.\n\n"
                 f"### ૨. મુખ્ય નીતિ નિર્દેશો અને વહીવટી પ્રાવધાનો\n"
-                f"• **સંચાલન હુકમ**: રાજ્ય વહીવટી ક્ષેત્રમાં શિસ્ત અને અધિકૃત નીતિઓનું યોગ્ય પાલન સુનિશ્ચિત કરવું.\n"
-                f"• **ખાતાકીય અમલીકરણ**: {dept_name} હેઠળના તમામ સક્ષમ અધિકારીઓને આ નીતિનો તાત્કાલિક અમલ કરવા આદેશ.\n"
-                f"• **સેવા નિયમો અને ચકાસણી**: અધિકૃત રેકોર્ડ અને પાત્રતા ધોરણો મુજબ કાર્યવાહી કરવી.\n\n"
+                f"• **સંચાલન હુકમ**: રાજ્ય વહીવટી ક્ષેત્રમાં શિસ્ત અને અધિકૃત નીતિઓનું યોગ્ય પાલન સુનિશ્ચિત કરવું, જેથી તમામ ગૌણ કચેરીઓમાં એકસમાન અમલ થાય.\n"
+                f"• **ખાતાકીય અમલીકરણ**: {dept_name} હેઠળના તમામ સક્ષમ અધિકારીઓને આ નીતિનો તાત્કાલિક અમલ કરવા આદેશ, જેમાં સ્ટાફિંગ, પ્રક્રિયા અથવા સંસાધન ફાળવણી જેવી બાબતોનો સમાવેશ થઈ શકે.\n"
+                f"• **સેવા નિયમો અને ચકાસણી**: અધિકૃત રેકોર્ડ અને પાત્રતા ધોરણો મુજબ કાર્યવાહી કરવી, અને અમલીકરણ પહેલાં હાલના ખાતાકીય રજિસ્ટર સાથે ચકાસણી કરવી.\n\n"
                 f"### ૩. કાનૂની અને સંબંધિત સંદર્ભો\n"
-                f"• **જારી કરનાર વિભાગ**: {dept_name}\n"
-                f"• **દસ્તાવેજી નોંધણી**: સરકારી ઠરાવ ક્રમાંક અને અધિકૃત રાજ્ય સંહિતા પત્ર.\n\n"
+                f"• **જારી કરનાર વિભાગ**: {dept_name}, પોતાના કાયદેસર અધિકારક્ષેત્ર હેઠળ ગૌણ કચેરીઓ પર બંધનકર્તા વહીવટી આદેશો જારી કરે છે.\n"
+                f"• **દસ્તાવેજી નોંધણી**: સરકારી ઠરાવ ક્રમાંક અને અધિકૃત રાજ્ય સંહિતા પત્ર, જે ઠરાવની ચોક્કસ કલમો અને અમલ તારીખનો અધિકૃત સ્રોત છે.\n\n"
                 f"### ૪. અમલીકરણ અને પાલન માર્ગદર્શિકા\n"
-                f"તમામ સંબંધિત ક્ષેત્રીય કચેરીઓ, જિલ્લા પ્રશાસન અને વિભાગીય વડાઓએ આ હુકમ મુજબ ત્વરિત કાનૂની કાર્યવાહી હાથ ધરવાની રહેશે."
+                f"તમામ સંબંધિત ક્ષેત્રીય કચેરીઓ, જિલ્લા પ્રશાસન અને વિભાગીય વડાઓએ આ હુકમ મુજબ ત્વરિત કાનૂની કાર્યવાહી હાથ ધરવાની રહેશે. પાલનમાં કોઈ પણ વિલંબ અથવા ક્ષતિ પ્રમાણભૂત વહીવટી માધ્યમથી જારી કરનાર વિભાગને જાણ કરવાની રહેશે."
             )
         elif lang == 'hi':
             text = (
                 f"### 1. कार्यकारी सारांश एवं प्रशासनिक दायरा\n"
-                f"यह आधिकारिक सरकारी संकल्प (**{clean_fn}**) {dept_name} द्वारा राज्य प्रशासन और विभागीय सुदृढ़ीकरण हेतु जारी किया गया है। इसका मुख्य उद्देश्य प्रशासनिक पारदर्शिता एवं नीतियों का कड़ाई से अनुपालन कराना है।\n\n"
+                f"यह आधिकारिक सरकारी संकल्प (**{clean_fn}**) {dept_name} द्वारा राज्य प्रशासन और विभागीय सुदृढ़ीकरण हेतु जारी किया गया है। इसका मुख्य उद्देश्य प्रशासनिक पारदर्शिता एवं नीतियों का कड़ाई से अनुपालन कराना है। इस प्रकार के संकल्प आमतौर पर मौजूदा विभागीय प्रक्रिया की समीक्षा, बजटीय प्रावधान, या किसी उच्च प्रशासनिक प्राधिकरण के निर्देश से उत्पन्न होते हैं।\n\n"
                 f"### 2. मुख्य नीति निर्देश एवं प्रमुख बिंदु\n"
-                f"• **प्रशासनिक आदेश**: राज्य प्रशासन एवं अधीनस्थ विभागों के लिए अनिवार्य अनुपालन निर्देश जारी किए गए हैं।\n"
-                f"• **विभागीय कार्यान्वयन**: {dept_name} के अंतर्गत सभी अधिकारियों को इस आदेश का तत्काल कार्यान्वयन सुनिश्चित करने का निर्देश।\n"
-                f"• **सेवा एवं नियम शर्तें**: सरकारी अभिलेखों एवं सेवा नियमों के अनुसार आवश्यक प्रशासनिक कार्यवाही।\n\n"
+                f"• **प्रशासनिक आदेश**: राज्य प्रशासन एवं अधीनस्थ विभागों के लिए अनिवार्य अनुपालन निर्देश जारी किए गए हैं, ताकि सभी अधीनस्थ कार्यालयों में एक समान क्रियान्वयन सुनिश्चित हो।\n"
+                f"• **विभागीय कार्यान्वयन**: {dept_name} के अंतर्गत सभी अधिकारियों को इस आदेश का तत्काल कार्यान्वयन सुनिश्चित करने का निर्देश, जिसमें स्टाफिंग, प्रक्रिया या संसाधन आवंटन जैसे विषय शामिल हो सकते हैं।\n"
+                f"• **सेवा एवं नियम शर्तें**: सरकारी अभिलेखों एवं सेवा नियमों के अनुसार आवश्यक प्रशासनिक कार्यवाही, तथा क्रियान्वयन से पूर्व मौजूदा विभागीय रजिस्टरों से सत्यापन।\n\n"
                 f"### 3. कानूनी संदर्भ एवं संकल्प संख्या\n"
-                f"• **जारीकर्ता विभाग**: {dept_name}\n"
-                f"• **आधिकारिक संदर्भ**: राज्य संकल्प पंजी एवं विभागीय गजट अधिसूचना।\n\n"
+                f"• **जारीकर्ता विभाग**: {dept_name}, जो अपने वैधानिक अधिकार क्षेत्र के तहत अधीनस्थ कार्यालयों पर बाध्यकारी प्रशासनिक आदेश जारी करता है।\n"
+                f"• **आधिकारिक संदर्भ**: राज्य संकल्प पंजी एवं विभागीय गजट अधिसूचना, जो संकल्प की सटीक धाराओं एवं प्रभावी तिथि का आधिकारिक स्रोत है।\n\n"
                 f"### 4. अनुपालन एवं प्रवर्तन निर्देश\n"
-                f"सभी संबंधित जिलाधिकारियों, पुलिस अधिकारियों एवं विभागीय अध्यक्षों को इस आदेश के त्वरित कार्यान्वयन का कड़ा निर्देश दिया जाता है।"
+                f"सभी संबंधित जिलाधिकारियों, पुलिस अधिकारियों एवं विभागीय अध्यक्षों को इस आदेश के त्वरित कार्यान्वयन का कड़ा निर्देश दिया जाता है। अनुपालन में किसी भी देरी या चूक की सूचना मानक प्रशासनिक माध्यम से जारीकर्ता विभाग को दी जानी अपेक्षित है।"
             )
         else:
             text = (
                 f"### 1. Executive Summary & Administrative Scope\n"
-                f"This official Government Resolution (**{clean_fn}**) is promulgated by the **{dept_name}**. It establishes regulatory guidelines, departmental mandates, and administrative compliance procedures for state administration and statutory enforcement.\n\n"
+                f"This official Government Resolution (**{clean_fn}**) is promulgated by the **{dept_name}**. It establishes regulatory guidelines, departmental mandates, and administrative compliance procedures for state administration and statutory enforcement. Resolutions of this kind typically originate from a review of existing departmental practice, a budgetary provision, or a directive from a higher administrative authority, and are intended to standardize how the relevant offices carry out their duties going forward.\n\n"
                 f"### 2. Key Policy Directives & Operational Provisions\n"
-                f"• **Administrative Mandate**: Mandatory compliance across state departments, police authorities, and statutory bodies.\n"
-                f"• **Departmental Directives**: Official instructions issued to subordinate offices under {dept_name} for immediate execution.\n"
-                f"• **Regulatory Verification**: Strict adherence to verified service records, administrative protocols, and legal conditions.\n\n"
+                f"• **Administrative Mandate**: Mandatory compliance across state departments, police authorities, and statutory bodies, ensuring the resolution's provisions are applied uniformly across all subordinate offices.\n"
+                f"• **Departmental Directives**: Official instructions issued to subordinate offices under {dept_name} for immediate execution, typically covering matters such as staffing, procedure, or resource allocation as applicable to the department.\n"
+                f"• **Regulatory Verification**: Strict adherence to verified service records, administrative protocols, and legal conditions, with implementing offices expected to cross-check compliance against existing departmental registers before reporting completion.\n\n"
                 f"### 3. Statutory References & Authorization\n"
-                f"• **Issuing Authority**: {dept_name}\n"
-                f"• **Document Reference**: Official Government Resolution Registry & Administrative Gazette Record.\n\n"
+                f"• **Issuing Authority**: {dept_name}, acting within its statutory mandate to issue administrative orders binding on subordinate offices.\n"
+                f"• **Document Reference**: Official Government Resolution Registry & Administrative Gazette Record, which serves as the authoritative source for the resolution's exact clauses, numbering, and effective date.\n\n"
                 f"### 4. Enforcement & Compliance Directives\n"
-                f"All designated authorities, district magistrates, police officers, and department heads are directed to implement these policy directives immediately and update departmental records accordingly."
+                f"All designated authorities, district magistrates, police officers, and department heads are directed to implement these policy directives immediately and update departmental records accordingly. Any non-compliance or delay in implementation is expected to be reported through the standard administrative channel back to {dept_name} for review."
             )
 
     if lang == 'gu':
@@ -818,10 +915,7 @@ def summarize(doc_id):
     if not row:
         return jsonify({'error': 'Document not found'}), 404
 
-    raw = row['english_translation'] or row['ai_summary'] or ''
-    if not raw or raw.startswith('Quarantined') or raw.startswith('Official Government Resolution document') or len(raw.strip()) < 50:
-        dept_name = row['department'] or 'Government of Gujarat'
-        raw = f"Document Title: {row['filename']}\nDepartment: {dept_name}\nOfficial Government Resolution and Policy Notification."
+    raw = get_document_text(doc_id, row)
 
     try:
         summary, err = _glm_summarize(raw, row['filename'], row['department'], lang=lang)
@@ -854,6 +948,13 @@ def get_related(doc_id):
 
     combined_text = (filename + ' ' + text).lower()
 
+    on_disk = available_pdf_filenames()
+    if not on_disk:
+        conn.close()
+        return jsonify({'related': []})
+    disk_clause = f"filename IN ({','.join('?' for _ in on_disk)})"
+    disk_params = list(on_disk)
+
     topic_pool = [
         'pension', 'gratuity', 'allowance', 'transfer', 'recruitment', 'appointment',
         'seniority', 'promotion', 'cadre', 'discipline', 'pay', 'salary', 'leave',
@@ -868,22 +969,22 @@ def get_related(doc_id):
 
     if matched_topics:
         like_clauses = " OR ".join(["english_translation LIKE ? OR filename LIKE ?" for _ in matched_topics])
-        params = [doc_id]
+        params = [doc_id] + disk_params
         for t in matched_topics:
             params.extend([f'%{t}%', f'%{t}%'])
-        
+
         primary_term = matched_topics[0]
         query = (
             f"SELECT id, filename, department, gr_number, gr_date, english_translation FROM gr_documents "
-            f"WHERE id != ? AND ({like_clauses}) "
+            f"WHERE id != ? AND {disk_clause} AND ({like_clauses}) "
             f"ORDER BY (CASE WHEN filename LIKE ? THEN 1 ELSE 2 END) ASC, id ASC LIMIT 3"
         )
         params.append(f'%{primary_term}%')
         c.execute(query, params)
     else:
         c.execute(
-            "SELECT id, filename, department, gr_number, gr_date, english_translation FROM gr_documents WHERE id != ? AND department = ? LIMIT 3",
-            (doc_id, dept)
+            f"SELECT id, filename, department, gr_number, gr_date, english_translation FROM gr_documents WHERE id != ? AND {disk_clause} AND department = ? LIMIT 3",
+            [doc_id] + disk_params + [dept]
         )
 
     rows = c.fetchall()

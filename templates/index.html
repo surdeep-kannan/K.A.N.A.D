@@ -301,6 +301,7 @@ footer{border-top:1px solid var(--border);background:var(--cream);padding:1.4rem
 <footer>K.A.N.A.D. · Knowledge Aggregation & Navigation for Administrative Documents · Gujarat 2026</footer>
 
 <script>
+const CACHE_VERSION = 'v2';
 let currentPage = 1;
 let currentQuery = '';
 let currentDept = '';
@@ -459,7 +460,7 @@ async function fetchRelated(id) {
   }
   el.style.display = 'block';
 
-  const cacheKey = `kanad_related_${id}`;
+  const cacheKey = `kanad_${CACHE_VERSION}_related_${id}`;
   let data = null;
   if (localRelatedCache.has(id)) {
     data = localRelatedCache.get(id);
@@ -498,7 +499,7 @@ async function doSearch(page) {
   const box = document.getElementById('results');
   const pag = document.getElementById('pagination');
 
-  const cacheKey = `kanad_search_${currentQuery}_${currentDept}_${page}`;
+  const cacheKey = `kanad_${CACHE_VERSION}_search_${currentQuery}_${currentDept}_${page}`;
   let data = null;
 
   if (localSearchCache.has(cacheKey)) {
@@ -544,7 +545,6 @@ async function doSearch(page) {
         <div class="doc-card-summary">${d.summary || '<em style="opacity:.5">No preview available.</em>'}</div>
         <div class="doc-card-meta">
           ${d.gr_number ? `<span>${d.gr_number}</span>` : ''}
-          ${d.gr_date   ? `<span>${d.gr_date}</span>` : ''}
           ${d.page_count ? `<span>${d.page_count} page${d.page_count>1?'s':''}</span>` : ''}
           <span style="color:var(--accent2);font-weight:600">⚡ Local Cache Active</span>
         </div>
@@ -603,7 +603,7 @@ async function openViewer(id, filename) {
   document.getElementById('modal-title').textContent = filename;
   modal.classList.add('open');
 
-  const cacheKey = `kanad_pages_${id}`;
+  const cacheKey = `kanad_${CACHE_VERSION}_pages_${id}`;
   let pages = null;
 
   if (localPagesCache.has(id)) {
@@ -671,7 +671,7 @@ async function summarizeDoc(id, lang = 'en') {
   panel.dataset.currentLang = lang;
   const label = lang === 'gu' ? '🇮🇳 ગુજરાતી' : (lang === 'hi' ? '🇮🇳 हिन्दी' : '✦ English');
 
-  const cacheKey = `kanad_summary_${id}_${lang}`;
+  const cacheKey = `kanad_${CACHE_VERSION}_summary_${id}_${lang}`;
   let textSummary = null;
   try { textSummary = localStorage.getItem(cacheKey); } catch(e) {}
 

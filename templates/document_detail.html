@@ -11,8 +11,8 @@
   --ink:#0f172a;--paper:#f8fafc;--cream:#f1f5f9;
   --accent:#0284c7;--accent2:#1e3a8a;
   --muted:#64748b;--border:#cbd5e1;
-  --card:#ffffff;--shadow:0 4px 20px rgba(15,23,42,.08);
-  --radius:10px;
+  --card:#ffffff;--shadow:0 4px 16px rgba(15,23,42,.06);
+  --radius:6px;
 }
 body{font-family:'Inter','Noto Sans Gujarati',-apple-system,sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;line-height:1.6}
 
@@ -31,7 +31,7 @@ header{
 
 /* ── SPLIT VIEW LAYOUT ── */
 .container{max-width:1440px;margin:1.5rem auto;padding:0 1.5rem}
-.split-layout{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start}
+.split-layout{display:grid;grid-template-columns:0.85fr 1.15fr;gap:1.5rem;align-items:start}
 
 @media(max-width:1024px){
   .split-layout{grid-template-columns:1fr}
@@ -53,7 +53,7 @@ header{
 
 /* ── AI SUMMARY BOX (LARGE & PROMINENT) ── */
 .section-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.8rem;box-shadow:var(--shadow)}
-.section-title{font-size:1.15rem;font-weight:800;color:var(--accent2);margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between}
+.section-title{font-size:1.05rem;font-weight:800;color:var(--accent2);margin-bottom:1rem;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.4rem 1rem}
 
 .lang-bar{display:flex;gap:10px;margin-bottom:1.2rem}
 .lang-tab{padding:8px 18px;border-radius:var(--radius);font-size:.9rem;font-weight:700;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--muted);transition:all .2s}
@@ -76,26 +76,30 @@ header{
   position:relative;
   background:#ffffff;
   border:1px solid #e2e8f0;
-  border-left:4px solid #10b981;
-  border-image:linear-gradient(to bottom, #34d399, #38bdf8, #818cf8) 1 100%;
+  border-left:4px solid var(--accent);
+  border-image:linear-gradient(to bottom, var(--accent), var(--accent2)) 1 100%;
   border-radius:8px;
-  padding:1.4rem 1.6rem;
+  padding:2rem 2.2rem;
   box-shadow:0 2px 10px rgba(0,0,0,.03);
+  min-height:320px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
 }
 
 .skeleton-header{
-  font-size:.95rem;
-  font-weight:600;
+  font-size:1.15rem;
+  font-weight:700;
   color:#334155;
   display:flex;
   align-items:center;
-  gap:8px;
-  margin-bottom:1.3rem;
+  gap:12px;
+  margin-bottom:2rem;
 }
 
 .sparkle-icon{
-  color:#06b6d4;
-  font-size:1.1rem;
+  color:var(--accent);
+  font-size:1.7rem;
   display:inline-block;
   animation:pulse-sparkle 1.4s infinite alternate;
 }
@@ -108,11 +112,11 @@ header{
 .skeleton-lines{
   display:flex;
   flex-direction:column;
-  gap:12px;
+  gap:18px;
 }
 
 .skeleton-bar{
-  height:16px;
+  height:20px;
   border-radius:12px;
   background:linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
   background-size:200% 100%;
@@ -126,11 +130,11 @@ header{
 
 /* ── DOCUMENT VIEWER (RIGHT COLUMN) ── */
 .right-col{display:flex;flex-direction:column;gap:1.2rem}
-.doc-viewer-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.2rem;box-shadow:var(--shadow);min-height:720px;display:flex;flex-direction:column}
+.doc-viewer-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.2rem;box-shadow:var(--shadow);min-height:920px;display:flex;flex-direction:column}
 .viewer-header{font-size:1rem;font-weight:800;color:var(--accent2);margin-bottom:0.8rem;display:flex;align-items:center;justify-content:space-between}
-.pdf-frame{width:100%;height:680px;border:1px solid var(--border);border-radius:6px;background:#f1f5f9}
+.pdf-frame{width:100%;height:min(88vh,880px);border:1px solid var(--border);border-radius:6px;background:#f1f5f9;flex:1}
 
-.page-gallery-scroll{display:flex;flex-direction:column;gap:1rem;max-height:680px;overflow-y:auto;padding-right:6px}
+.page-gallery-scroll{display:flex;flex-direction:column;gap:1rem;max-height:min(88vh,880px);overflow-y:auto;padding-right:6px}
 .page-img-preview{width:100%;border-radius:6px;border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,.05);transition:transform .2s;cursor:zoom-in}
 .page-img-preview:hover{transform:scale(1.01)}
 
@@ -177,7 +181,6 @@ header{
         
         <div class="meta-pills">
           {% if doc.gr_number %}<span class="pill">📌 GR: {{ doc.gr_number }}</span>{% endif %}
-          {% if doc.gr_date %}<span class="pill">📅 Date: {{ doc.gr_date }}</span>{% endif %}
           {% if doc.pages %}<span class="pill">📄 Pages: {{ doc.pages|length }}</span>{% endif %}
           <span class="pill" style="color:var(--accent2);background:#e0f2fe">⚡ Verified Record</span>
         </div>
@@ -203,9 +206,9 @@ header{
 
         <div class="lang-bar" style="justify-content:space-between;align-items:center">
           <div style="display:flex;gap:8px">
-            <button class="lang-tab active" id="tab-en" onclick="loadLangSummary('en')">🇬🇧 English</button>
-            <button class="lang-tab" id="tab-gu" onclick="loadLangSummary('gu')">🇮🇳 ગુજરાતી</button>
-            <button class="lang-tab" id="tab-hi" onclick="loadLangSummary('hi')">🇮🇳 हिन्दी</button>
+            <button class="lang-tab active" id="tab-en" onclick="loadLangSummary('en')">English</button>
+            <button class="lang-tab" id="tab-gu" onclick="loadLangSummary('gu')">ગુજરાતી</button>
+            <button class="lang-tab" id="tab-hi" onclick="loadLangSummary('hi')">हिन्दी</button>
           </div>
           <button class="btn btn-outline" style="padding:5px 12px;font-size:0.78rem" onclick="purgeCacheAndReload()">↻ Hard Refresh</button>
         </div>
@@ -281,10 +284,12 @@ function getSkeletonHTML() {
   return `
     <div class="skeleton-card">
       <div class="skeleton-header">
-        <span class="sparkle-icon">✦</span> Looking into next steps...
+        <span class="sparkle-icon">✦</span> Drafting your executive briefing…
       </div>
       <div class="skeleton-lines">
+        <div class="skeleton-bar" style="width: 92%;"></div>
         <div class="skeleton-bar" style="width: 84%;"></div>
+        <div class="skeleton-bar" style="width: 96%;"></div>
         <div class="skeleton-bar" style="width: 66%;"></div>
         <div class="skeleton-bar" style="width: 48%;"></div>
       </div>
