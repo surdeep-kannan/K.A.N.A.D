@@ -313,13 +313,17 @@ def doc_pages(doc_id):
 def serve_pdf(doc_id):
     conn = get_db()
     c = conn.cursor()
-    c.execute("SELECT source_pdf_path FROM gr_documents WHERE id=?", (doc_id,))
+    c.execute("SELECT source_pdf_path, source_url FROM gr_documents WHERE id=?", (doc_id,))
     row = c.fetchone()
     conn.close()
-    if row and row['source_pdf_path']:
-        full = os.path.join(BASE_DIR, row['source_pdf_path'])
-        if os.path.exists(full):
-            return send_file(full, mimetype='application/pdf')
+    if row:
+        if row['source_pdf_path']:
+            full = os.path.join(BASE_DIR, row['source_pdf_path'])
+            if os.path.exists(full):
+                return send_file(full, mimetype='application/pdf')
+        if row['source_url'] and row['source_url'].startswith('http'):
+            from flask import redirect
+            return redirect(row['source_url'], code=302)
     return "PDF Not Found", 404
 
 @app.route('/pdf_images/<path:filename>')
@@ -349,6 +353,8 @@ def doc_detail(doc_id):
     raw_text = row['english_translation'] or row['ai_summary'] or ''
     title = _derive_title(row['filename'], raw_text, row['department'], row['gr_number'])
 
+    has_pdf = bool((row['source_pdf_path'] and os.path.exists(os.path.join(BASE_DIR, row['source_pdf_path']))) or (row['source_url'] and row['source_url'].startswith('http')))
+
     doc_data = {
         'id': row['id'],
         'filename': title,
@@ -360,7 +366,7 @@ def doc_detail(doc_id):
         'ai_summary': row['ai_summary'] or '',
         'source_url': row['source_url'],
         'pages': imgs,
-        'has_pdf': bool(row['source_pdf_path']),
+        'has_pdf': has_pdf,
         'quality': row['quality_status']
     }
     return render_template('document_detail.html', doc=doc_data)
