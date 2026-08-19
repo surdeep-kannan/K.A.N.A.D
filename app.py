@@ -6,6 +6,13 @@ DB_PATH = os.path.join(BASE_DIR, 'database', 'gujarat_gr_intel.db')
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
+@app.after_request
+def add_cache_control_headers(response):
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
+
 import re
 
 def regexp(expr, item):

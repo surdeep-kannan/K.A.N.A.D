@@ -201,10 +201,13 @@ header{
           <span style="font-size:0.75rem;color:var(--accent2);font-weight:600">⚡ Instant Cache Ready</span>
         </div>
 
-        <div class="lang-bar">
-          <button class="lang-tab active" id="tab-en" onclick="loadLangSummary('en')">🇬🇧 English</button>
-          <button class="lang-tab" id="tab-gu" onclick="loadLangSummary('gu')">🇮🇳 ગુજરાતી</button>
-          <button class="lang-tab" id="tab-hi" onclick="loadLangSummary('hi')">🇮🇳 हिन्दी</button>
+        <div class="lang-bar" style="justify-content:space-between;align-items:center">
+          <div style="display:flex;gap:8px">
+            <button class="lang-tab active" id="tab-en" onclick="loadLangSummary('en')">🇬🇧 English</button>
+            <button class="lang-tab" id="tab-gu" onclick="loadLangSummary('gu')">🇮🇳 ગુજરાતી</button>
+            <button class="lang-tab" id="tab-hi" onclick="loadLangSummary('hi')">🇮🇳 हिन्दी</button>
+          </div>
+          <button class="btn btn-outline" style="padding:5px 12px;font-size:0.78rem" onclick="purgeCacheAndReload()">↻ Hard Refresh</button>
         </div>
 
         <div id="summary-content" class="summary-box">
@@ -289,16 +292,32 @@ function getSkeletonHTML() {
   `;
 }
 
-async function loadLangSummary(lang) {
+function purgeCacheAndReload() {
+  Object.keys(localStorage).forEach(k => {
+    if (k.startsWith('kanad_summary')) {
+      localStorage.removeItem(k);
+    }
+  });
+  const activeTab = document.querySelector('.lang-tab.active');
+  const currentLang = activeTab ? activeTab.id.replace('tab-', '') : 'en';
+  loadLangSummary(currentLang, true);
+}
+
+async function loadLangSummary(lang, force = false) {
   document.querySelectorAll('.lang-tab').forEach(t => t.classList.remove('active'));
   document.getElementById(`tab-${lang}`).classList.add('active');
 
   const box = document.getElementById('summary-content');
-  const cacheKey = `kanad_summary_${docId}_${lang}`;
+  const cacheKey = `kanad_summary_v4_${docId}_${lang}`;
+
+  if (force) {
+    localStorage.removeItem(cacheKey);
+  }
+
   let text = localStorage.getItem(cacheKey);
 
-  if (text) {
-    if (text.includes('Identify the Problem') || text.includes('Determine the Strategy') || text.includes('Drafting the Response') || text.includes('cannot summarize') || text.includes('protected instructions')) {
+  if (text && !force) {
+    if (text.includes('Identify the Problem') || text.includes('Determine the Strategy') || text.includes('Drafting the Response') || text.includes('cannot summarize') || text.includes('protected instructions') || text.length < 150) {
       localStorage.removeItem(cacheKey);
       text = null;
     } else {
@@ -310,7 +329,7 @@ async function loadLangSummary(lang) {
   box.innerHTML = getSkeletonHTML();
 
   try {
-    const res = await fetch(`/api/summarize/${docId}?lang=${lang}`, { method: 'POST' });
+    const res = await fetch(`/api/summarize/${docId}?lang=${lang}&t=${Date.now()}`, { method: 'POST' });
     const data = await res.json();
     if (data.summary) {
       localStorage.setItem(cacheKey, data.summary);
