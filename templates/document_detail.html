@@ -59,6 +59,55 @@ header{
 .lang-tab{padding:8px 18px;border-radius:var(--radius);font-size:.9rem;font-weight:700;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--muted);transition:all .2s}
 .lang-tab.active{background:var(--accent2);color:#fff;border-color:var(--accent2)}
 
+/* ── VOICE INPUT & AUDIO READOUT STYLES ── */
+.btn-voice {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #1e293b;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+.btn-voice:hover {
+  background: #e2e8f0;
+  color: #0284c7;
+}
+.btn-voice.speaking {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+}
+
+/* Soundwave Equalizer Animation */
+.soundwave {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 16px;
+}
+.soundwave span {
+  display: inline-block;
+  width: 3px;
+  height: 100%;
+  background: currentColor;
+  border-radius: 2px;
+  animation: soundwave-bounce 0.8s ease-in-out infinite alternate;
+}
+.soundwave span:nth-child(1) { animation-delay: 0.1s; }
+.soundwave span:nth-child(2) { animation-delay: 0.3s; }
+.soundwave span:nth-child(3) { animation-delay: 0.2s; }
+
+@keyframes soundwave-bounce {
+  0% { transform: scaleY(0.2); }
+  100% { transform: scaleY(1); }
+}
+
 .summary-box{
   background:#f8fafc;
   border:1px solid var(--border);
@@ -203,10 +252,13 @@ header{
         </div>
 
         <div class="lang-bar" style="justify-content:space-between;align-items:center">
-          <div style="display:flex;gap:8px">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
             <button class="lang-tab active" id="tab-en" onclick="loadLangSummary('en')">English</button>
             <button class="lang-tab" id="tab-gu" onclick="loadLangSummary('gu')">ગુજરાતી</button>
             <button class="lang-tab" id="tab-hi" onclick="loadLangSummary('hi')">हिन्दी</button>
+            <button class="btn-voice" id="voice-readout-btn" onclick="toggleVoiceReadout()">
+              <span id="voice-icon">🔊</span> <span id="voice-text">Listen Briefing</span>
+            </button>
           </div>
           <button class="btn btn-outline" style="padding:5px 12px;font-size:0.78rem" onclick="purgeCacheAndReload()">↻ Hard Refresh</button>
         </div>
@@ -268,11 +320,27 @@ header{
         Do you have any queries about <em>"{{ doc.filename }}"</em> or pension / police rules?
       </div>
     </div>
-    <div class="chat-input-bar">
-      <input type="text" id="chat-input" placeholder="Type your query here…" onkeydown="if(event.key==='Enter') sendChat()">
+    <div class="chat-input-bar" style="display:flex;gap:6px">
+      <button id="chat-mic-btn" class="btn-voice" style="padding:6px 10px;font-size:1.1rem" title="Speak Query" onclick="startVoiceInput('chat-input')">🎙️</button>
+      <input type="text" id="chat-input" placeholder="Type or speak your query…" onkeydown="if(event.key==='Enter') sendChat()" style="flex:1">
       <button onclick="sendChat()">Send</button>
     </div>
   </div>
+</div>
+
+<!-- VOICE RECORDING OVERLAY TOAST -->
+<div id="voice-overlay" style="position:fixed;bottom:90px;right:30px;background:#0f172a;color:#ffffff;padding:14px 20px;border-radius:30px;box-shadow:0 10px 30px rgba(0,0,0,0.35);display:none;align-items:center;gap:14px;z-index:9999;font-size:0.9rem;border:1px solid #334155">
+  <div style="width:32px;height:32px;border-radius:50%;background:#ef4444;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1rem;box-shadow:0 0 0 6px rgba(239,68,68,0.3)">🎙️</div>
+  <div style="display:flex;flex-direction:column;gap:2px">
+    <span style="font-weight:700;color:#38bdf8">Listening to voice input…</span>
+    <span style="font-size:0.78rem;color:#94a3b8">Speak your legal query now</span>
+  </div>
+  <div class="soundwave" style="display:inline-flex;gap:3px;height:16px;margin-left:6px">
+    <span style="width:3px;height:100%;background:#38bdf8;border-radius:2px"></span>
+    <span style="width:3px;height:100%;background:#38bdf8;border-radius:2px"></span>
+    <span style="width:3px;height:100%;background:#38bdf8;border-radius:2px"></span>
+  </div>
+  <button onclick="stopVoiceInput()" style="background:#334155;color:#fff;border:none;padding:5px 12px;border-radius:12px;font-size:0.75rem;cursor:pointer;margin-left:8px">Cancel</button>
 </div>
 
 <script>
@@ -395,6 +463,119 @@ async function sendChat() {
     document.getElementById(loadingId).innerHTML = '⚠ Service unavailable.';
   }
   msgs.scrollTop = msgs.scrollHeight;
+}
+
+// ── SPEECH SYNTHESIS (TEXT-TO-SPEECH READOUT) ──
+let synth = window.speechSynthesis;
+let currentUtterance = null;
+let isSpeaking = false;
+
+function toggleVoiceReadout() {
+  const btn = document.getElementById('voice-readout-btn');
+  const icon = document.getElementById('voice-icon');
+  const text = document.getElementById('voice-text');
+
+  if (isSpeaking) {
+    synth.cancel();
+    isSpeaking = false;
+    btn.classList.remove('speaking');
+    icon.textContent = '🔊';
+    text.textContent = 'Listen Briefing';
+    return;
+  }
+
+  const summaryElem = document.getElementById('summary-content');
+  if (!summaryElem) return;
+
+  const rawText = summaryElem.innerText || summaryElem.textContent;
+  if (!rawText || rawText.length < 10) return;
+
+  const activeTab = document.querySelector('.lang-tab.active');
+  const lang = activeTab ? activeTab.id.replace('tab-', '') : 'en';
+
+  currentUtterance = new SpeechSynthesisUtterance(rawText);
+  if (lang === 'gu') {
+    currentUtterance.lang = 'gu-IN';
+  } else if (lang === 'hi') {
+    currentUtterance.lang = 'hi-IN';
+  } else {
+    currentUtterance.lang = 'en-US';
+  }
+
+  currentUtterance.rate = 1.0;
+  currentUtterance.pitch = 1.0;
+
+  currentUtterance.onstart = function() {
+    isSpeaking = true;
+    btn.classList.add('speaking');
+    icon.innerHTML = `<span class="soundwave"><span></span><span></span><span></span></span>`;
+    text.textContent = 'Pause Voice';
+  };
+
+  currentUtterance.onend = currentUtterance.onerror = function() {
+    isSpeaking = false;
+    btn.classList.remove('speaking');
+    icon.textContent = '🔊';
+    text.textContent = 'Listen Briefing';
+  };
+
+  synth.cancel();
+  synth.speak(currentUtterance);
+}
+
+// ── SPEECH RECOGNITION (SPEECH-TO-TEXT VOICE SEARCH & CHAT) ──
+let recognition = null;
+let activeInputId = null;
+
+function startVoiceInput(targetInputId) {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    alert('Speech recognition is not supported in this browser. Please use Chrome or Edge.');
+    return;
+  }
+
+  activeInputId = targetInputId;
+  recognition = new SpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = true;
+  recognition.lang = 'en-US';
+
+  const overlay = document.getElementById('voice-overlay');
+  overlay.style.display = 'flex';
+
+  recognition.onresult = function(event) {
+    let transcript = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      transcript += event.results[i][0].transcript;
+    }
+    const input = document.getElementById(activeInputId);
+    if (input) {
+      input.value = transcript;
+    }
+  };
+
+  recognition.onend = function() {
+    overlay.style.display = 'none';
+    const input = document.getElementById(activeInputId);
+    if (input && input.value.trim() && activeInputId === 'chat-input') {
+      input.focus();
+    }
+  };
+
+  recognition.onerror = function(e) {
+    overlay.style.display = 'none';
+    console.warn('Voice recognition error:', e.error);
+  };
+
+  recognition.start();
+}
+
+function stopVoiceInput() {
+  if (recognition) {
+    recognition.stop();
+  }
+  const overlay = document.getElementById('voice-overlay');
+  overlay.style.display = 'none';
 }
 
 window.addEventListener('DOMContentLoaded', () => {

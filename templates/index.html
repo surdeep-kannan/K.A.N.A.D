@@ -786,6 +786,52 @@ async function sendChatMessage() {
   }
   msgs.scrollTop = msgs.scrollHeight;
 }
+
+// ── VOICE RECOGNITION SEARCH CONTROLLER ──
+let voiceRecognition = null;
+
+function startVoiceSearch(targetInputId = 'q') {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    showToast('Speech recognition not supported in browser. Try Chrome/Edge.', '⚠️');
+    return;
+  }
+
+  voiceRecognition = new SpeechRecognition();
+  voiceRecognition.continuous = false;
+  voiceRecognition.interimResults = true;
+  voiceRecognition.lang = 'en-US';
+
+  const micBtn = document.getElementById('mic-btn');
+  if (micBtn) micBtn.style.background = '#ef4444';
+
+  showToast('🎙️ Listening... Speak your search query', '🎙️');
+
+  voiceRecognition.onresult = function(event) {
+    let transcript = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      transcript += event.results[i][0].transcript;
+    }
+    const input = document.getElementById(targetInputId);
+    if (input) {
+      input.value = transcript;
+    }
+  };
+
+  voiceRecognition.onend = function() {
+    if (micBtn) micBtn.style.background = '#e2e8f0';
+    const input = document.getElementById(targetInputId);
+    if (input && input.value.trim() && targetInputId === 'q') {
+      doSearch(1);
+    }
+  };
+
+  voiceRecognition.onerror = function() {
+    if (micBtn) micBtn.style.background = '#e2e8f0';
+  };
+
+  voiceRecognition.start();
+}
 </script>
 </body>
 </html>
